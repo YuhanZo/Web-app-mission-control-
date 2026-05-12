@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AppLayout } from '../components/layout/AppLayout'
 import { PageHeader } from '../components/layout/PageHeader'
-import { supabase } from '../lib/supabaseClient'
+import { supabase, supabaseConfigured } from '../lib/supabaseClient'
 
 type DbStatus = 'checking' | 'connected' | 'error'
 
@@ -21,9 +21,14 @@ export function Settings() {
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
+    if (!supabaseConfigured) {
+      setDbStatus('error')
+      setErrorMsg('No .env file found. Copy .env.example → .env and add your Supabase credentials.')
+      return
+    }
+
     async function checkConnection() {
       try {
-        // Simple ping: count rows in staff_users
         const { error } = await supabase.from('staff_users').select('id', { count: 'exact', head: true })
         if (error) {
           setDbStatus('error')
