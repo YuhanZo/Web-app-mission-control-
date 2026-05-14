@@ -115,3 +115,51 @@ input:focus { border-color: var(--color-primary); }
 
 /* ─── Loading ────────────────────────────────────────────────── */
 .loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; color: var(--color-muted); font-size: 14px; }
+
+/* ─── Links in table ─────────────────────────────────────────── */
+.table a { color: var(--color-primary); text-decoration: none; }
+.table a:hover { text-decoration: underline; }
+
+/* ─── Create / assign forms ──────────────────────────────────── */
+.create-form, .assign-form {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.create-form h3, .assign-form h4 { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+
+.form-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.form-row .form-group { flex: 1; min-width: 180px; }
+
+select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  background: var(--color-surface);
+  outline: none;
+}
+select:focus { border-color: var(--color-primary); }
+
+/* ─── Project detail grid ────────────────────────────────────── */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.detail-item { display: flex; flex-direction: column; gap: 4px; }
+.detail-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--color-muted); }
+
+/* ─── Danger ghost button ────────────────────────────────────── */
+.btn-danger-ghost { background: transparent; color: var(--color-danger); border: 1px solid #fca5a5; font-size: 12px; padding: 4px 10px; }
+.btn-danger-ghost:hover { background: #fee2e2; }

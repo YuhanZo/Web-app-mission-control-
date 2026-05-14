@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [data, setData]       = useState(null);
-  const [error, setError]     = useState('');
+  const [data, setData] = useState(null);
 
   useEffect(() => {
     api.dashboard()
@@ -29,6 +28,7 @@ export default function Dashboard() {
           James Blinds <span className="brand-sub">Mission Control</span>
         </span>
         <div className="nav-right">
+          <Link to="/projects" className="btn btn-ghost">Projects</Link>
           <span className="nav-user">
             {user.name}
             <span className="badge badge-role">{user.role}</span>
@@ -53,6 +53,7 @@ export default function Dashboard() {
 
         <div className="section-header">
           <h3>Recent Projects</h3>
+          <Link to="/projects" className="btn btn-ghost">View all</Link>
         </div>
 
         <table className="table">
@@ -70,12 +71,8 @@ export default function Dashboard() {
             ) : (
               recentProjects.map(p => (
                 <tr key={p.id}>
-                  <td>{p.project_name}</td>
-                  <td>
-                    <span className={`badge badge-status badge-${p.status}`}>
-                      {p.status}
-                    </span>
-                  </td>
+                  <td><Link to={`/projects/${p.id}`}>{p.project_name}</Link></td>
+                  <td><span className={`badge badge-status badge-${p.status}`}>{p.status}</span></td>
                   <td>{p.contract_value ? `$${Number(p.contract_value).toLocaleString()}` : '—'}</td>
                   <td>{p.project_manager_name || '—'}</td>
                 </tr>

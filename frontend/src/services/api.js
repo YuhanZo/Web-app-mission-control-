@@ -12,8 +12,19 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  // Auth
   login:     (email, password) => request('/api/auth/login',  { method: 'POST', body: JSON.stringify({ email, password }) }),
   logout:    ()                => request('/api/auth/logout', { method: 'POST' }),
   me:        ()                => request('/api/auth/me'),
-  dashboard: ()                => request('/api/dashboard'),
+
+  // Dashboard
+  dashboard: () => request('/api/dashboard'),
+
+  // Projects
+  projects:       ()           => request('/api/projects'),
+  project:        (id)         => request(`/api/projects/${id}`),
+  createProject:  (data)       => request('/api/projects',        { method: 'POST',   body: JSON.stringify(data) }),
+  updateProject:  (id, data)   => request(`/api/projects/${id}`,  { method: 'PUT',    body: JSON.stringify(data) }),
+  assignUser:     (id, data)   => request(`/api/projects/${id}/users`,             { method: 'POST',   body: JSON.stringify(data) }),
+  removeUser:     (id, userId) => request(`/api/projects/${id}/users/${userId}`,   { method: 'DELETE' }),
 };
