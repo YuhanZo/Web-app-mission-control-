@@ -10,6 +10,7 @@ router.get('/',                       projectController.list);
 router.get('/:id',                    projectController.getById);
 router.post('/',                      projectController.create);
 router.put('/:id',                    projectController.update);
+router.delete('/:id',                 projectController.deleteProject);
 router.post('/:id/users',             projectController.assignUser);
 router.delete('/:id/users/:userId',   projectController.removeUser);
 

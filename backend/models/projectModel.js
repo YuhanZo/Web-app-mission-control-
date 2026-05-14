@@ -67,6 +67,13 @@ const ProjectModel = {
     return rows[0];
   },
 
+  async remove(id) {
+    // delete assignments first to satisfy foreign key constraint
+    await db.query('DELETE FROM project_users WHERE project_id = $1', [id]);
+    const { rows } = await db.query('DELETE FROM projects WHERE id = $1 RETURNING id', [id]);
+    return rows[0] || null;
+  },
+
   async update(id, fields) {
     const allowed = ['project_name', 'customer_user_id', 'territory_id',
                      'project_manager_user_id', 'status', 'contract_value',

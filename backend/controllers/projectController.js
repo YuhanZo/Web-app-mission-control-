@@ -55,6 +55,19 @@ const projectController = {
     }
   },
 
+  // DELETE /api/projects/:id
+  async deleteProject(req, res) {
+    try {
+      const project = await ProjectModel.findById(req.params.id);
+      if (!project) return res.status(404).json({ error: 'Project not found.' });
+      await ProjectModel.remove(req.params.id);
+      res.json({ message: 'Project deleted.' });
+    } catch (err) {
+      console.error('projects.delete error:', err);
+      res.status(500).json({ error: 'Server error.' });
+    }
+  },
+
   // POST /api/projects/:id/users
   async assignUser(req, res) {
     const { user_id, relationship_type } = req.body;

@@ -29,6 +29,16 @@ export default function Projects() {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
   }
 
+  async function handleDelete(id, name) {
+    if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    try {
+      await api.deleteProject(id);
+      setProjects(prev => prev.filter(p => p.id !== id));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function handleCreate(e) {
     e.preventDefault();
     setError('');
@@ -114,7 +124,10 @@ export default function Projects() {
                   <td><span className={`badge badge-status badge-${p.status}`}>{p.status}</span></td>
                   <td>{p.contract_value ? `$${Number(p.contract_value).toLocaleString()}` : '—'}</td>
                   <td>{p.start_date ? p.start_date.slice(0, 10) : '—'}</td>
-                  <td><Link to={`/projects/${p.id}`} className="btn btn-ghost">View</Link></td>
+                  <td style={{ display: 'flex', gap: '8px' }}>
+                    <Link to={`/projects/${p.id}`} className="btn btn-ghost">View</Link>
+                    <button className="btn btn-danger-ghost" onClick={() => handleDelete(p.id, p.project_name)}>Delete</button>
+                  </td>
                 </tr>
               ))
             )}
