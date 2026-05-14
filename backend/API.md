@@ -297,6 +297,89 @@ Remove a user from a project.
 
 ---
 
+## Users
+
+### GET /api/users
+
+List all team members.
+
+**Success — 200**
+```json
+{
+  "users": [
+    { "id": 1, "name": "Admin User", "email": "admin@jamesblinds.com", "phone": null, "active": true, "role_name": "admin", "role_id": 1 }
+  ]
+}
+```
+
+---
+
+### POST /api/users
+
+Create a new team member.
+
+**Request body**
+```json
+{ "name": "Jane Smith", "email": "jane@jamesblinds.com", "password": "secret123", "role_id": 2, "phone": "555-1234" }
+```
+
+Only `name`, `email`, and `password` are required.
+
+**Success — 201**
+```json
+{ "user": { "id": 2, "name": "Jane Smith", "email": "jane@jamesblinds.com", "phone": "555-1234", "role_id": 2, "active": true } }
+```
+
+**Error — 400**
+```json
+{ "error": "Email already in use." }
+```
+
+---
+
+### PUT /api/users/:id
+
+Update a team member's name, email, phone, or role.
+
+**Request body**
+```json
+{ "name": "Jane Doe", "email": "jane@jamesblinds.com", "phone": "555-9999", "role_id": 3 }
+```
+
+**Success — 200**
+```json
+{ "user": { "id": 2, "name": "Jane Doe", "email": "jane@jamesblinds.com", "phone": "555-9999", "role_id": 3 } }
+```
+
+---
+
+### PATCH /api/users/:id/deactivate
+
+Deactivate a team member (sets active = false, blocks login).
+
+**Success — 200**
+```json
+{ "message": "Jane Doe has been deactivated." }
+```
+
+**Error — 404**
+```json
+{ "error": "User not found." }
+```
+
+---
+
+### GET /api/users/roles
+
+List all available roles.
+
+**Success — 200**
+```json
+{ "roles": [{ "id": 1, "name": "admin" }, { "id": 2, "name": "installer" }] }
+```
+
+---
+
 ## Error Format
 
 All errors return JSON in this shape:

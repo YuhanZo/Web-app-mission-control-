@@ -45,6 +45,26 @@ const UserModel = {
     );
     return rows[0];
   },
+
+  async update(id, { name, email, phone, role_id }) {
+    const { rows } = await db.query(
+      `UPDATE users
+          SET name = $1, email = $2, phone = $3, role_id = $4, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $5
+        RETURNING id, name, email, phone, role_id, active, created_at`,
+      [name, email, phone || null, role_id || null, id]
+    );
+    return rows[0] || null;
+  },
+
+  async deactivate(id) {
+    const { rows } = await db.query(
+      `UPDATE users SET active = false, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1 RETURNING id, name, active`,
+      [id]
+    );
+    return rows[0] || null;
+  },
 };
 
 module.exports = UserModel;
