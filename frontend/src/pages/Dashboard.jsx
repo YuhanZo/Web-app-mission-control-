@@ -1,42 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { api } from '../services/api';
+import Navbar from '../components/Navbar';
 
 export default function Dashboard() {
-  const navigate = useNavigate();
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    api.dashboard()
-      .then(setData)
-      .catch(() => navigate('/login'));
-  }, [navigate]);
-
-  async function handleLogout() {
-    await api.logout();
-    navigate('/login');
-  }
+    api.dashboard().then(setData);
+  }, []);
 
   if (!data) return <div className="loading">Loading…</div>;
 
-  const { user, stats, recentProjects } = data;
+  const { stats, recentProjects } = data;
 
   return (
     <div>
-      <nav className="navbar">
-        <span className="brand">
-          James Blinds <span className="brand-sub">Mission Control</span>
-        </span>
-        <div className="nav-right">
-          <Link to="/projects" className="btn btn-ghost">Projects</Link>
-          <Link to="/users"   className="btn btn-ghost">Team</Link>
-          <span className="nav-user">
-            {user.name}
-            <span className="badge badge-role">{user.role}</span>
-          </span>
-          <button onClick={handleLogout} className="btn btn-ghost">Log out</button>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="container">
         <h2>Dashboard</h2>

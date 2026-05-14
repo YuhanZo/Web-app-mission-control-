@@ -1,25 +1,23 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
+import Navbar from '../components/Navbar';
 
 const EMPTY_FORM = { name: '', email: '', password: '', role_id: '', phone: '' };
 
 export default function Users() {
-  const navigate = useNavigate();
-  const [users, setUsers]       = useState(null);
-  const [roles, setRoles]       = useState([]);
-  const [form, setForm]         = useState(EMPTY_FORM);
+  const [users, setUsers]         = useState(null);
+  const [roles, setRoles]         = useState([]);
+  const [form, setForm]           = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({});
-  const [error, setError]       = useState('');
+  const [editForm, setEditForm]   = useState({});
+  const [error, setError]         = useState('');
   const [editError, setEditError] = useState('');
-  const [saving, setSaving]     = useState(false);
+  const [saving, setSaving]       = useState(false);
 
   useEffect(() => {
     Promise.all([api.users(), api.roles()])
-      .then(([ud, rd]) => { setUsers(ud.users); setRoles(rd.roles); })
-      .catch(() => navigate('/login'));
-  }, [navigate]);
+      .then(([ud, rd]) => { setUsers(ud.users); setRoles(rd.roles); });
+  }, []);
 
   function handleChange(e) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -75,15 +73,7 @@ export default function Users() {
 
   return (
     <div>
-      <nav className="navbar">
-        <span className="brand">
-          James Blinds <span className="brand-sub">Mission Control</span>
-        </span>
-        <div className="nav-right">
-          <Link to="/dashboard" className="btn btn-ghost">Dashboard</Link>
-          <Link to="/projects"  className="btn btn-ghost">Projects</Link>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="container">
         <h2>Team Members</h2>

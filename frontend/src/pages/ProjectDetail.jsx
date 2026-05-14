@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { api } from '../services/api';
+import Navbar from '../components/Navbar';
 
 const STATUS_OPTIONS    = ['pending', 'active', 'completed', 'cancelled'];
 const RELATIONSHIP_TYPES = ['project_manager', 'estimator', 'installer', 'customer', 'accounting', 'support_specialist', 'vendor'];
 
 export default function ProjectDetail() {
-  const { id }    = useParams();
-  const navigate  = useNavigate();
+  const { id } = useParams();
 
-  const [project, setProject]           = useState(null);
+  const [project, setProject]             = useState(null);
   const [assignedUsers, setAssignedUsers] = useState([]);
-  const [allUsers, setAllUsers]         = useState([]);
-  const [editing, setEditing]           = useState(false);
-  const [form, setForm]                 = useState({});
-  const [assignForm, setAssignForm]     = useState({ user_id: '', relationship_type: 'installer' });
-  const [error, setError]               = useState('');
-  const [assignError, setAssignError]   = useState('');
-  const [saving, setSaving]             = useState(false);
+  const [allUsers, setAllUsers]           = useState([]);
+  const [editing, setEditing]             = useState(false);
+  const [form, setForm]                   = useState({});
+  const [assignForm, setAssignForm]       = useState({ user_id: '', relationship_type: 'installer' });
+  const [error, setError]                 = useState('');
+  const [assignError, setAssignError]     = useState('');
+  const [saving, setSaving]               = useState(false);
 
   useEffect(() => {
     Promise.all([api.project(id), api.users()])
@@ -26,9 +26,8 @@ export default function ProjectDetail() {
         setForm(d.project);
         setAssignedUsers(d.assignedUsers);
         setAllUsers(ud.users);
-      })
-      .catch(() => navigate('/projects'));
-  }, [id, navigate]);
+      });
+  }, [id]);
 
   function handleChange(e) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -75,14 +74,7 @@ export default function ProjectDetail() {
 
   return (
     <div>
-      <nav className="navbar">
-        <span className="brand">
-          James Blinds <span className="brand-sub">Mission Control</span>
-        </span>
-        <div className="nav-right">
-          <Link to="/projects" className="btn btn-ghost">← Projects</Link>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="container">
 

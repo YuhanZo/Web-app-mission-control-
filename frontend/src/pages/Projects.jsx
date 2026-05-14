@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { api } from '../services/api';
+import Navbar from '../components/Navbar';
 
 const STATUS_OPTIONS = ['pending', 'active', 'completed', 'cancelled'];
 
@@ -12,7 +13,6 @@ const EMPTY_FORM = {
 };
 
 export default function Projects() {
-  const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm]         = useState(EMPTY_FORM);
@@ -20,10 +20,8 @@ export default function Projects() {
   const [saving, setSaving]     = useState(false);
 
   useEffect(() => {
-    api.projects()
-      .then(d => setProjects(d.projects))
-      .catch(() => navigate('/login'));
-  }, [navigate]);
+    api.projects().then(d => setProjects(d.projects));
+  }, []);
 
   function handleChange(e) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -47,15 +45,7 @@ export default function Projects() {
 
   return (
     <div>
-      <nav className="navbar">
-        <span className="brand">
-          James Blinds <span className="brand-sub">Mission Control</span>
-        </span>
-        <div className="nav-right">
-          <Link to="/dashboard" className="btn btn-ghost">Dashboard</Link>
-          <Link to="/users"    className="btn btn-ghost">Team</Link>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="container">
         <div className="section-header">
