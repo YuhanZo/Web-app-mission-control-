@@ -740,6 +740,204 @@ td small {
   background: var(--brand);
 }
 
+/* ─── Sidebar groups ─────────────────────────────────────────── */
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-group-label {
+  display: block;
+  margin: 14px 0 4px 8px;
+  color: rgba(255, 255, 255, .38);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+/* ─── Two-column layout helper ───────────────────────────────── */
+
+.two-col-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+/* ─── Horizontal bar chart ───────────────────────────────────── */
+
+.hbar-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) 90px;
+  align-items: center;
+  gap: 14px;
+}
+
+.hbar-label strong,
+.hbar-label small {
+  display: block;
+}
+
+.hbar-label small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.hbar-track {
+  height: 10px;
+  border-radius: 999px;
+  background: #e8edf0;
+  overflow: hidden;
+}
+
+.hbar-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width .4s ease;
+}
+
+.hbar-value {
+  text-align: right;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* ─── Win / loss bar ─────────────────────────────────────────── */
+
+.win-loss-bar-wrap {
+  display: grid;
+  gap: 12px;
+}
+
+.win-loss-bar {
+  display: flex;
+  height: 20px;
+  border-radius: 6px;
+  overflow: hidden;
+  gap: 2px;
+}
+
+.win-loss-bar div {
+  transition: width .4s ease;
+}
+
+.win-loss-legend {
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.win-loss-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.win-loss-legend i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* ─── Invoice aging buckets ──────────────────────────────────── */
+
+.aging-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+}
+
+.aging-bucket {
+  padding: 22px 18px;
+  text-align: center;
+  border-right: 1px solid var(--line);
+  border-top: 3px solid var(--bucket-color, var(--brand));
+}
+
+.aging-bucket:last-child {
+  border-right: 0;
+}
+
+.aging-count {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--bucket-color, var(--brand));
+  line-height: 1;
+}
+
+.aging-amount {
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.aging-label {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ─── Report cards ───────────────────────────────────────────── */
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: var(--line);
+}
+
+.report-card {
+  background: var(--surface);
+  padding: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.report-card strong {
+  font-size: 14px;
+}
+
+.report-card p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.report-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--brand);
+  border: 1px solid var(--brand);
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.report-card-actions button {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+/* ─── Badge variants ─────────────────────────────────────────── */
+
+.badge-hold {
+  background: #f0eaff;
+  color: #6b3fa0;
+}
+
 /* ─── Finance dashboard enhancements ─────────────────────────── */
 
 .fin-tab-bar {
@@ -859,7 +1057,9 @@ td small {
   .calendar-layout,
   .pacing-grid,
   .finance-bottom-grid,
-  .fin-kpi-grid {
+  .fin-kpi-grid,
+  .two-col-grid,
+  .aging-grid {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -877,7 +1077,9 @@ td small {
   .calendar-layout,
   .pacing-grid,
   .finance-bottom-grid,
-  .fin-kpi-grid {
+  .fin-kpi-grid,
+  .two-col-grid,
+  .aging-grid {
     grid-template-columns: 1fr;
   }
 

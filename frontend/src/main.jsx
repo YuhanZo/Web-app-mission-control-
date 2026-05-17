@@ -67,6 +67,109 @@ const demoFinance = {
   ],
 };
 
+const demoAnalytics = {
+  revenueByTerritory: [
+    { territory_name: 'Charlotte Metro', project_count: 3, total_revenue: 567500, est_labor: 141875, est_material: 312625, total_estimate: 454100, est_profit: 113400 },
+    { territory_name: 'Triad',           project_count: 1, total_revenue: 402500, est_labor: 100625, est_material: 221375, total_estimate: 322000, est_profit:  80500 },
+    { territory_name: 'Lake Norman',     project_count: 1, total_revenue: 226750, est_labor:  56688, est_material: 124713, total_estimate: 181400, est_profit:  45350 },
+    { territory_name: 'South Carolina',  project_count: 1, total_revenue: 157300, est_labor:  39325, est_material:  86515, total_estimate: 125840, est_profit:  31460 },
+  ],
+  topCustomers: [
+    { company_name: 'Triad Multifamily Group',        territory_name: 'Triad',           project_count: 1, total_revenue: 402500, est_profit:  80500 },
+    { company_name: 'Crescent Property Group',         territory_name: 'Charlotte Metro', project_count: 1, total_revenue: 340500, est_profit:  68100 },
+    { company_name: 'Lakeside Hospitality Partners',   territory_name: 'Lake Norman',     project_count: 1, total_revenue: 226750, est_profit:  45350 },
+    { company_name: 'Brookline Builders',              territory_name: 'Charlotte Metro', project_count: 2, total_revenue: 227000, est_profit:  45400 },
+    { company_name: 'Palmetto Commercial Interiors',   territory_name: 'South Carolina',  project_count: 1, total_revenue: 157300, est_profit:  31460 },
+  ],
+  monthlyRevenue: [
+    { metric_month: '2026-01-01', revenue: 210000, gp_dollars:  54600, np_dollars: 21000, pipeline_value:  980000, bid_value: 510000, bids_sent: 4 },
+    { metric_month: '2026-02-01', revenue: 352000, gp_dollars:  91520, np_dollars: 35200, pipeline_value: 1150000, bid_value: 812000, bids_sent: 7 },
+    { metric_month: '2026-03-01', revenue: 409400, gp_dollars: 106444, np_dollars: 40940, pipeline_value: 1307500, bid_value: 936000, bids_sent: 8 },
+    { metric_month: '2026-04-01', revenue: 408000, gp_dollars: 106080, np_dollars: 40800, pipeline_value: 1498000, bid_value: 847000, bids_sent: 5 },
+    { metric_month: '2026-05-01', revenue: 287500, gp_dollars:  74750, np_dollars: 28750, pipeline_value: 1154250, bid_value: 285000, bids_sent: 1 },
+  ],
+  invoices: [
+    { project_id: 1, job_number: 24001, project_name: 'Uptown Medical Office Shades', company_name: 'Brookline Builders',            territory_name: 'Charlotte Metro', billing_month: '2026-05-01', amount_due:  39400, total_billed: 118200, retainage: 11820, invoice_sent: true,  qbo_invoice_number: 'INV-2026-047', days_outstanding:  16 },
+    { project_id: 2, job_number: 24002, project_name: 'Crescent South Apartments',    company_name: 'Crescent Property Group',       territory_name: 'Charlotte Metro', billing_month: '2026-05-01', amount_due:  68100, total_billed:  85125, retainage:  8512, invoice_sent: false, qbo_invoice_number: null,            days_outstanding:  16 },
+    { project_id: 6, job_number: 24006, project_name: 'Triad Multifamily Phase 1',    company_name: 'Triad Multifamily Group',       territory_name: 'Triad',           billing_month: '2026-04-01', amount_due:  80500, total_billed:  80500, retainage:  8050, invoice_sent: false, qbo_invoice_number: null,            days_outstanding:  46 },
+    { project_id: 4, job_number: 24004, project_name: 'Palmetto Surgical Center',     company_name: 'Palmetto Commercial Interiors', territory_name: 'South Carolina',  billing_month: '2026-03-01', amount_due:  31460, total_billed:  94380, retainage:  9438, invoice_sent: true,  qbo_invoice_number: 'INV-2026-038', days_outstanding:  77 },
+    { project_id: 5, job_number: 24005, project_name: 'Riverfront Condo Unit 4B',     company_name: 'Brookline Builders',            territory_name: 'Charlotte Metro', billing_month: '2026-01-01', amount_due:  14500, total_billed:  30000, retainage:  1500, invoice_sent: true,  qbo_invoice_number: 'INV-2026-021', days_outstanding: 136 },
+  ],
+  expenses: [
+    { project_id: 1, job_number: 24001, project_name: 'Uptown Medical Office Shades', status: 'active',    territory_name: 'Charlotte Metro', pm_name: 'Maya Johnson', contract_value: 197000, est_labor:  49250, est_material: 108350, total_estimate: 157600, actual_cost:  65300 },
+    { project_id: 2, job_number: 24002, project_name: 'Crescent South Apartments',    status: 'active',    territory_name: 'Charlotte Metro', pm_name: 'Maya Johnson', contract_value: 340500, est_labor:  85125, est_material: 187275, total_estimate: 272400, actual_cost:  89400 },
+    { project_id: 3, job_number: 24003, project_name: 'Lake Norman Hotel Renovation', status: 'pending',   territory_name: 'Lake Norman',     pm_name: 'Chris Walker', contract_value: 226750, est_labor:  56688, est_material: 124713, total_estimate: 181400, actual_cost:      0 },
+    { project_id: 4, job_number: 24004, project_name: 'Palmetto Surgical Center',     status: 'active',    territory_name: 'South Carolina',  pm_name: 'Maya Johnson', contract_value: 157300, est_labor:  39325, est_material:  86515, total_estimate: 125840, actual_cost:  68200 },
+    { project_id: 5, job_number: 24005, project_name: 'Riverfront Condo Unit 4B',     status: 'completed', territory_name: 'Charlotte Metro', pm_name: 'Maya Johnson', contract_value:  30000, est_labor:   7500, est_material:  16500, total_estimate:  24000, actual_cost:  23200 },
+    { project_id: 6, job_number: 24006, project_name: 'Triad Multifamily Phase 1',    status: 'active',    territory_name: 'Triad',           pm_name: 'Chris Walker', contract_value: 402500, est_labor: 100625, est_material: 221375, total_estimate: 322000, actual_cost:  44200 },
+  ],
+  bids: [
+    { id: 1, project_name: 'Ballantyne Corporate Park Ph.3', bid_date: '2026-05-10', bid_amount: 285000, estimated_gp:  74100, estimated_np: 28500, estimated_hours: 540, bid_status: 'pending', won: false, territory_name: 'Charlotte Metro', company_name: 'Brookline Builders',            actual_gp: null },
+    { id: 2, project_name: 'Huntersville Luxury Apartments', bid_date: '2026-05-04', bid_amount: 412000, estimated_gp: 107120, estimated_np: 41200, estimated_hours: 780, bid_status: 'won',     won: true,  territory_name: 'Lake Norman',     company_name: 'Lakeside Hospitality Partners',   actual_gp:  98700 },
+    { id: 3, project_name: 'Cabarrus County Medical',        bid_date: '2026-04-22', bid_amount: 157500, estimated_gp:  40950, estimated_np: 15750, estimated_hours: 298, bid_status: 'lost',    won: false, territory_name: 'Charlotte Metro', company_name: 'Palmetto Commercial Interiors', actual_gp: null },
+    { id: 4, project_name: 'SouthPark Office Tower',         bid_date: '2026-04-15', bid_amount: 320000, estimated_gp:  83200, estimated_np: 32000, estimated_hours: 605, bid_status: 'pending', won: false, territory_name: 'Charlotte Metro', company_name: 'Crescent Property Group',       actual_gp: null },
+    { id: 5, project_name: 'Triad Distribution Center',      bid_date: '2026-04-08', bid_amount: 198000, estimated_gp:  51480, estimated_np: 19800, estimated_hours: 374, bid_status: 'won',     won: true,  territory_name: 'Triad',           company_name: 'Triad Multifamily Group',       actual_gp:  47500 },
+    { id: 6, project_name: 'Uptown Medical Office Shades',   bid_date: '2026-03-15', bid_amount: 197000, estimated_gp:  51220, estimated_np: 19700, estimated_hours: 372, bid_status: 'won',     won: true,  territory_name: 'Charlotte Metro', company_name: 'Brookline Builders',            actual_gp:  39400 },
+    { id: 7, project_name: 'Palmetto Surgical Center',       bid_date: '2026-03-01', bid_amount: 157300, estimated_gp:  40898, estimated_np: 15730, estimated_hours: 297, bid_status: 'won',     won: true,  territory_name: 'South Carolina',  company_name: 'Palmetto Comm. Interiors',      actual_gp:  31460 },
+  ],
+  statePerformance: [
+    { territory_name: 'Charlotte Metro', state: 'NC', project_count: 3, total_revenue: 567500, total_cost: 454100, gross_profit: 113400, np_dollars:  56750, labor_cost: 141875, material_cost: 312625, avg_margin: 0.20, tax_rate: 0.0475 },
+    { territory_name: 'Triad',           state: 'NC', project_count: 1, total_revenue: 402500, total_cost: 322000, gross_profit:  80500, np_dollars:  40250, labor_cost: 100625, material_cost: 221375, avg_margin: 0.20, tax_rate: 0.0475 },
+    { territory_name: 'Lake Norman',     state: 'NC', project_count: 1, total_revenue: 226750, total_cost: 181400, gross_profit:  45350, np_dollars:  22675, labor_cost:  56688, material_cost: 124713, avg_margin: 0.20, tax_rate: 0.0475 },
+    { territory_name: 'South Carolina',  state: 'SC', project_count: 1, total_revenue: 157300, total_cost: 125840, gross_profit:  31460, np_dollars:  15730, labor_cost:  39325, material_cost:  86515, avg_margin: 0.20, tax_rate: 0.0600 },
+  ],
+  installers: [
+    { id: 1, name: 'Marcus Webb',   territory_name: 'Charlotte Metro', active_projects: 2, ytd_hours: 680, ytd_labor_cost: 34000, projects_completed: 8, avg_hours_per_project:  85, efficiency_rating: 0.94, overtime_hours: 24 },
+    { id: 2, name: 'Devon Clark',   territory_name: 'Charlotte Metro', active_projects: 1, ytd_hours: 540, ytd_labor_cost: 27000, projects_completed: 6, avg_hours_per_project:  90, efficiency_rating: 0.88, overtime_hours: 40 },
+    { id: 3, name: 'Jake Norris',   territory_name: 'Lake Norman',     active_projects: 1, ytd_hours: 420, ytd_labor_cost: 21000, projects_completed: 5, avg_hours_per_project:  84, efficiency_rating: 0.96, overtime_hours:  8 },
+    { id: 4, name: 'Trevor Shaw',   territory_name: 'South Carolina',  active_projects: 1, ytd_hours: 390, ytd_labor_cost: 19500, projects_completed: 4, avg_hours_per_project:  97, efficiency_rating: 0.82, overtime_hours: 56 },
+    { id: 5, name: 'Luis Herrera',  territory_name: 'Triad',           active_projects: 1, ytd_hours: 480, ytd_labor_cost: 24000, projects_completed: 7, avg_hours_per_project:  68, efficiency_rating: 0.97, overtime_hours:  0 },
+    { id: 6, name: 'Ryan Potts',    territory_name: 'Triad',           active_projects: 1, ytd_hours: 310, ytd_labor_cost: 15500, projects_completed: 3, avg_hours_per_project: 103, efficiency_rating: 0.79, overtime_hours: 64 },
+  ],
+  payrollMonthly: [
+    { metric_month: '2026-01-01', total_hours: 420, total_labor_cost: 21000, overtime_hours: 20, overtime_cost: 1575 },
+    { metric_month: '2026-02-01', total_hours: 680, total_labor_cost: 34000, overtime_hours: 40, overtime_cost: 3000 },
+    { metric_month: '2026-03-01', total_hours: 790, total_labor_cost: 39500, overtime_hours: 60, overtime_cost: 4500 },
+    { metric_month: '2026-04-01', total_hours: 760, total_labor_cost: 38000, overtime_hours: 52, overtime_cost: 3900 },
+  ],
+  expenseCategories: [
+    { category: 'Materials',         amount: 1072513, pct: 0.55 },
+    { category: 'Installer Labor',   amount:  583838, pct: 0.30 },
+    { category: 'Fuel & Travel',     amount:   97307, pct: 0.05 },
+    { category: 'Equipment',         amount:   77845, pct: 0.04 },
+    { category: 'Subcontractors',    amount:  116768, pct: 0.06 },
+  ],
+  forecasting: {
+    combined: [
+      { month: 'Jan', revenue: 210000, projected: null,   actual: true },
+      { month: 'Feb', revenue: 352000, projected: null,   actual: true },
+      { month: 'Mar', revenue: 409400, projected: null,   actual: true },
+      { month: 'Apr', revenue: 408000, projected: null,   actual: true },
+      { month: 'May', revenue: 287500, projected: 287500, actual: true },
+      { month: 'Jun', revenue: null,   projected: 420000, actual: false },
+      { month: 'Jul', revenue: null,   projected: 480000, actual: false },
+      { month: 'Aug', revenue: null,   projected: 510000, actual: false },
+      { month: 'Sep', revenue: null,   projected: 490000, actual: false },
+      { month: 'Oct', revenue: null,   projected: 445000, actual: false },
+      { month: 'Nov', revenue: null,   projected: 398000, actual: false },
+      { month: 'Dec', revenue: null,   projected: 310000, actual: false },
+    ],
+    cashFlow: [
+      { month: 'May', inflow: 287500, outflow: 198500, net:  89000 },
+      { month: 'Jun', inflow: 380000, outflow: 245000, net: 135000 },
+      { month: 'Jul', inflow: 455000, outflow: 290000, net: 165000 },
+      { month: 'Aug', inflow: 510000, outflow: 315000, net: 195000 },
+    ],
+    upcomingBilling: [
+      { project_name: 'Crescent South Apartments',       amount:  68100, due_date: '2026-05-25', status: 'pending' },
+      { project_name: 'Triad Multifamily Phase 1',        amount:  80500, due_date: '2026-05-30', status: 'pending' },
+      { project_name: 'Huntersville Luxury Apartments',   amount:  51500, due_date: '2026-06-15', status: 'upcoming' },
+      { project_name: 'Ballantyne Corporate Park Ph.3',   amount:  71250, due_date: '2026-07-01', status: 'upcoming' },
+      { project_name: 'Lake Norman Hotel Renovation',     amount:  56688, due_date: '2026-07-15', status: 'upcoming' },
+    ],
+  },
+};
+
 const statusLabels = {
   active: 'Active',
   pending: 'Pending',
@@ -348,6 +451,50 @@ function LineChart({ model }) {
         {series.map((item) => <span key={item.key}><i style={{ background: item.color }} />{item.label}</span>)}
       </div>
     </section>
+  );
+}
+
+// ─── Shared charting helpers ──────────────────────────────────
+
+function HorizontalBar({ label, value, max, color, sub }) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  return (
+    <div className="hbar-row">
+      <div className="hbar-label"><strong>{label}</strong>{sub && <small>{sub}</small>}</div>
+      <div className="hbar-track"><div className="hbar-fill" style={{ width: `${pct}%`, background: color || 'var(--brand)' }} /></div>
+      <div className="hbar-value">{compactMoney(value)}</div>
+    </div>
+  );
+}
+
+function AgingBucket({ label, count, amount, color }) {
+  return (
+    <div className="aging-bucket" style={{ '--bucket-color': color }}>
+      <div className="aging-count">{count}</div>
+      <div className="aging-amount">{compactMoney(amount)}</div>
+      <div className="aging-label">{label}</div>
+    </div>
+  );
+}
+
+function WinLossBar({ bids }) {
+  const total  = bids.length || 1;
+  const won    = bids.filter((b) => b.won || b.bid_status === 'won').length;
+  const lost   = bids.filter((b) => b.bid_status === 'lost').length;
+  const pending = total - won - lost;
+  return (
+    <div className="win-loss-bar-wrap">
+      <div className="win-loss-bar">
+        <div style={{ width: `${(won / total) * 100}%`, background: 'var(--green)' }} title={`Won: ${won}`} />
+        <div style={{ width: `${(pending / total) * 100}%`, background: 'var(--gold)' }} title={`Pending: ${pending}`} />
+        <div style={{ width: `${(lost / total) * 100}%`, background: 'var(--red)' }} title={`Lost: ${lost}`} />
+      </div>
+      <div className="win-loss-legend">
+        <span><i style={{ background: 'var(--green)' }} />Won ({won})</span>
+        <span><i style={{ background: 'var(--gold)' }} />Pending ({pending})</span>
+        <span><i style={{ background: 'var(--red)' }} />Lost ({lost})</span>
+      </div>
+    </div>
   );
 }
 
@@ -758,6 +905,555 @@ function ChangeOrdersView({ data }) {
   );
 }
 
+// ─── Revenue Analytics ────────────────────────────────────────
+
+function RevenueView({ analytics }) {
+  const monthly  = analytics.monthlyRevenue || [];
+  const byTerritory = analytics.revenueByTerritory || [];
+  const customers   = analytics.topCustomers || [];
+  const ytdRev  = sumValues(monthly, 'revenue');
+  const ytdGp   = sumValues(monthly, 'gp_dollars');
+  const ytdNp   = sumValues(monthly, 'np_dollars');
+  const avgMonth = monthly.length ? ytdRev / monthly.length : 0;
+  const bestMonth = monthly.reduce((best, m) => Number(m.revenue) > Number(best.revenue || 0) ? m : best, {});
+  const maxTerr = Math.max(...byTerritory.map((t) => Number(t.total_revenue)), 1);
+  const territoryColors = ['#214f6f', '#2f8f5b', '#d99b2b', '#8e44ad'];
+
+  const chartLabels = monthly.map((m) => monthLabel(m.metric_month));
+  const chartSeries = [
+    { label: 'Gross Revenue',  color: '#214f6f', values: monthly.map((m) => Number(m.revenue)) },
+    { label: 'Gross Profit',   color: '#2f8f5b', values: monthly.map((m) => Number(m.gp_dollars)) },
+    { label: 'Net Profit',     color: '#d99b2b', values: monthly.map((m) => Number(m.np_dollars)) },
+    { label: 'Pipeline Value', color: '#ff62c7', dashed: true, values: monthly.map((m) => Number(m.pipeline_value)) },
+  ];
+
+  return (
+    <>
+      <div className="fin-kpi-grid">
+        <FinKpiCard label="YTD Gross Revenue"  value={compactMoney(ytdRev)}   sub={`${monthly.length} months reported`} color="var(--brand)" />
+        <FinKpiCard label="YTD Gross Profit"   value={compactMoney(ytdGp)}    sub={ytdRev ? formatRatio(ytdGp / ytdRev) + ' GP margin' : '—'} color="var(--green)" />
+        <FinKpiCard label="YTD Net Profit"     value={compactMoney(ytdNp)}    sub={ytdRev ? formatRatio(ytdNp / ytdRev) + ' NP margin' : '—'} color="#2980b9" />
+        <FinKpiCard label="Avg Monthly Revenue" value={compactMoney(avgMonth)} sub="Rolling average" color="var(--gold)" />
+        <FinKpiCard label="Best Month"         value={compactMoney(bestMonth.revenue)} sub={bestMonth.metric_month ? monthLabel(bestMonth.metric_month) + ' 2026' : '—'} color="var(--orange)" />
+        <FinKpiCard label="Active Pipeline"    value={compactMoney(monthly[monthly.length - 1]?.pipeline_value)} sub="Latest month" color="#8e44ad" />
+      </div>
+
+      {monthly.length > 0 && (
+        <MultiSeriesChart title="Revenue · Gross Profit · Net Profit vs Pipeline" series={chartSeries} labels={chartLabels} />
+      )}
+
+      <div className="two-col-grid">
+        <section className="panel">
+          <div className="panel-head"><h2>Revenue by Territory</h2><span>Ranked by contract value</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 14 }}>
+            {byTerritory.map((t, i) => (
+              <HorizontalBar key={t.territory_name} label={t.territory_name} value={Number(t.total_revenue)} max={maxTerr} color={territoryColors[i % territoryColors.length]} sub={`${t.project_count} projects · Est. profit: ${compactMoney(t.est_profit)}`} />
+            ))}
+          </div>
+        </section>
+
+        <section className="panel">
+          <div className="panel-head"><h2>Top Customers by Revenue</h2><span>Lifetime contract value</span></div>
+          <div style={{ overflowX: 'auto' }}>
+            <table>
+              <thead><tr><th>Customer</th><th>Territory</th><th>Jobs</th><th>Total Revenue</th><th>Est. GP</th></tr></thead>
+              <tbody>
+                {customers.map((c) => (
+                  <tr key={c.company_name}>
+                    <td><strong>{c.company_name}</strong></td>
+                    <td>{c.territory_name || '—'}</td>
+                    <td>{c.project_count}</td>
+                    <td><strong>{currency(c.total_revenue)}</strong></td>
+                    <td style={{ color: 'var(--green)' }}>{currency(c.est_profit)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
+
+// ─── Bids & Profitability ─────────────────────────────────────
+
+function BidsAnalyticsView({ analytics }) {
+  const bids = analytics.bids || [];
+  const won     = bids.filter((b) => b.won || b.bid_status === 'won');
+  const lost    = bids.filter((b) => b.bid_status === 'lost');
+  const pending = bids.filter((b) => b.bid_status === 'pending');
+  const winRate = bids.length ? won.length / bids.length : 0;
+  const wonValue  = sumValues(won, 'bid_amount');
+  const totalValue = sumValues(bids, 'bid_amount');
+  const avgEstGp  = bids.length ? bids.reduce((s, b) => s + (Number(b.bid_amount) ? Number(b.estimated_gp) / Number(b.bid_amount) : 0), 0) / bids.length : 0;
+
+  const underpriced = bids.filter((b) => {
+    if (!b.actual_gp || !b.bid_amount) return false;
+    const estPct    = Number(b.estimated_gp) / Number(b.bid_amount);
+    const actualPct = Number(b.actual_gp)    / Number(b.bid_amount);
+    return actualPct < estPct - 0.04;
+  });
+
+  const bidStatusBadge = { won: 'badge-completed', lost: 'badge-active', pending: 'badge-pending' };
+
+  return (
+    <>
+      <div className="fin-kpi-grid" style={{ gridTemplateColumns: 'repeat(5, minmax(0,1fr))' }}>
+        <FinKpiCard label="Total Bids Sent"    value={bids.length}              sub={`${currency(totalValue)} total value`} color="var(--brand)" />
+        <FinKpiCard label="Bids Won"           value={won.length}               sub={compactMoney(wonValue) + ' awarded'}  color="var(--green)" />
+        <FinKpiCard label="Bids Pending"       value={pending.length}           sub="Awaiting decision"                    color="var(--gold)" />
+        <FinKpiCard label="Bids Lost"          value={lost.length}              sub={compactMoney(sumValues(lost, 'bid_amount'))} color="var(--red)" />
+        <FinKpiCard label="Win Rate"           value={formatRatio(winRate)}     sub={`Avg est. GP: ${formatRatio(avgEstGp)}`}    color="#8e44ad" />
+      </div>
+
+      <section className="panel">
+        <div className="panel-head"><h2>Bid Conversion Overview</h2><span>Won · Pending · Lost</span></div>
+        <div style={{ padding: '18px' }}><WinLossBar bids={bids} /></div>
+      </section>
+
+      <section className="panel">
+        <div className="panel-head"><h2>Bids &amp; Profitability Detail</h2><span>{bids.length} bids · Finance view</span></div>
+        <div style={{ overflowX: 'auto' }}>
+          <table>
+            <thead>
+              <tr><th>Date</th><th>Bid</th><th>Territory</th><th>Company</th><th>Bid Value</th><th>Est. GP %</th><th>Actual GP %</th><th>GP Variance</th><th>Est. Hours</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {bids.map((b) => {
+                const estGpPct    = Number(b.bid_amount) ? Number(b.estimated_gp) / Number(b.bid_amount) : 0;
+                const actualGpPct = (b.actual_gp != null && Number(b.bid_amount)) ? Number(b.actual_gp) / Number(b.bid_amount) : null;
+                const variance    = actualGpPct != null ? actualGpPct - estGpPct : null;
+                const isUnder     = variance != null && variance < -0.03;
+                return (
+                  <tr key={b.id} style={isUnder ? { background: '#fff8f0' } : {}}>
+                    <td>{shortDate(b.bid_date)}</td>
+                    <td>
+                      <strong>{b.project_name}</strong>
+                      {isUnder && <small style={{ color: 'var(--orange)', fontWeight: 700 }}>⚠ Underbid</small>}
+                    </td>
+                    <td>{b.territory_name || '—'}</td>
+                    <td>{b.company_name || '—'}</td>
+                    <td><strong>{currency(b.bid_amount)}</strong></td>
+                    <td><span className={`badge ${estGpPct >= 0.25 ? 'badge-completed' : 'badge-pending'}`}>{formatRatio(estGpPct)}</span></td>
+                    <td>{actualGpPct != null ? <span className={`badge ${actualGpPct >= 0.22 ? 'badge-completed' : 'badge-pending'}`}>{formatRatio(actualGpPct)}</span> : <span style={{ color: 'var(--muted)' }}>Pending</span>}</td>
+                    <td style={{ color: variance == null ? 'var(--muted)' : variance < 0 ? 'var(--red)' : 'var(--green)', fontWeight: 700 }}>
+                      {variance == null ? '—' : `${variance > 0 ? '+' : ''}${(variance * 100).toFixed(1)}pp`}
+                    </td>
+                    <td>{Number(b.estimated_hours || 0).toFixed(0)}</td>
+                    <td><span className={`badge ${bidStatusBadge[b.bid_status] || 'badge-pending'}`}>{b.bid_status}</span></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {underpriced.length > 0 && (
+        <section className="panel" style={{ border: '1px solid #f5c06b', background: '#fffbf0' }}>
+          <div className="panel-head"><h2 style={{ color: 'var(--orange)' }}>⚠ Underpriced Bids — Finance Alert</h2><span>{underpriced.length} bids where actual GP fell below estimate by &gt;4pp</span></div>
+          <div style={{ overflowX: 'auto' }}>
+            <table>
+              <thead><tr><th>Bid</th><th>Territory</th><th>PM</th><th>Bid Amount</th><th>Est. GP%</th><th>Actual GP%</th><th>Missed Margin</th></tr></thead>
+              <tbody>
+                {underpriced.map((b) => {
+                  const estPct = Number(b.bid_amount) ? Number(b.estimated_gp) / Number(b.bid_amount) : 0;
+                  const actPct = Number(b.bid_amount) ? Number(b.actual_gp) / Number(b.bid_amount) : 0;
+                  const missed = (estPct - actPct) * Number(b.bid_amount);
+                  return (
+                    <tr key={b.id}>
+                      <td><strong>{b.project_name}</strong></td>
+                      <td>{b.territory_name}</td>
+                      <td>{b.company_name}</td>
+                      <td>{currency(b.bid_amount)}</td>
+                      <td>{formatRatio(estPct)}</td>
+                      <td style={{ color: 'var(--red)' }}>{formatRatio(actPct)}</td>
+                      <td style={{ color: 'var(--red)', fontWeight: 700 }}>{currency(missed)} lost margin</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+    </>
+  );
+}
+
+// ─── Accounts Receivable (Invoices) ───────────────────────────
+
+function InvoicesView({ analytics }) {
+  const invoices = analytics.invoices || [];
+  const outstanding = invoices.filter((i) => !i.invoice_sent || Number(i.days_outstanding) > 0);
+  const overdue30   = invoices.filter((i) => Number(i.days_outstanding) > 30);
+  const overdue60   = invoices.filter((i) => Number(i.days_outstanding) > 60);
+  const overdue90   = invoices.filter((i) => Number(i.days_outstanding) > 90);
+  const totalOut    = sumValues(outstanding, 'amount_due');
+  const totalOv30   = sumValues(overdue30, 'amount_due');
+
+  function agingBucket(days) {
+    if (days <= 30)  return { label: '0–30 days', color: 'var(--green)' };
+    if (days <= 60)  return { label: '31–60 days', color: 'var(--gold)' };
+    if (days <= 90)  return { label: '61–90 days', color: 'var(--orange)' };
+    return { label: '90+ days', color: 'var(--red)' };
+  }
+
+  const agingGroups = [
+    { label: '0–30 days',   color: '#2f8f5b', count: invoices.filter((i) => Number(i.days_outstanding) <= 30).length,                                                      amount: sumValues(invoices.filter((i) => Number(i.days_outstanding) <= 30), 'amount_due') },
+    { label: '31–60 days',  color: '#d99b2b', count: invoices.filter((i) => Number(i.days_outstanding) > 30 && Number(i.days_outstanding) <= 60).length,  amount: sumValues(invoices.filter((i) => Number(i.days_outstanding) > 30 && Number(i.days_outstanding) <= 60), 'amount_due') },
+    { label: '61–90 days',  color: '#be6b2d', count: invoices.filter((i) => Number(i.days_outstanding) > 60 && Number(i.days_outstanding) <= 90).length,  amount: sumValues(invoices.filter((i) => Number(i.days_outstanding) > 60 && Number(i.days_outstanding) <= 90), 'amount_due') },
+    { label: '90+ days',    color: '#b84a4a', count: invoices.filter((i) => Number(i.days_outstanding) > 90).length,                                                        amount: sumValues(invoices.filter((i) => Number(i.days_outstanding) > 90), 'amount_due') },
+  ];
+
+  return (
+    <>
+      <div className="fin-kpi-grid" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
+        <FinKpiCard label="Total A/R Outstanding" value={compactMoney(totalOut)}              sub={`${outstanding.length} open invoices`} color="var(--brand)" />
+        <FinKpiCard label="Overdue &gt; 30 Days"  value={compactMoney(totalOv30)}             sub={`${overdue30.length} invoices`}        color="var(--orange)" />
+        <FinKpiCard label="Overdue &gt; 60 Days"  value={compactMoney(sumValues(overdue60, 'amount_due'))} sub={`${overdue60.length} invoices`} color="var(--red)" />
+        <FinKpiCard label="Total Retainage Held"  value={compactMoney(sumValues(invoices, 'retainage'))}   sub="Held by clients" color="#8e44ad" />
+      </div>
+
+      <section className="panel">
+        <div className="panel-head"><h2>Invoice Aging Buckets</h2><span>A/R by days outstanding</span></div>
+        <div className="aging-grid">
+          {agingGroups.map((g) => <AgingBucket key={g.label} label={g.label} count={g.count} amount={g.amount} color={g.color} />)}
+        </div>
+      </section>
+
+      <section className="panel">
+        <div className="panel-head"><h2>Open Invoices &amp; A/R Ledger</h2><span>Sorted by oldest first</span></div>
+        <div style={{ overflowX: 'auto' }}>
+          <table>
+            <thead>
+              <tr><th>Job</th><th>Project</th><th>Customer</th><th>Territory</th><th>Billing Date</th><th>Amount Due</th><th>Retainage</th><th>Days O/S</th><th>Invoice #</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {[...invoices].sort((a, b) => Number(b.days_outstanding) - Number(a.days_outstanding)).map((inv) => {
+                const { color } = agingBucket(Number(inv.days_outstanding));
+                return (
+                  <tr key={`${inv.project_id}-${inv.billing_month}`}>
+                    <td>{inv.job_number || '—'}</td>
+                    <td><strong>{inv.project_name}</strong></td>
+                    <td>{inv.company_name || '—'}</td>
+                    <td>{inv.territory_name || '—'}</td>
+                    <td>{shortDate(inv.billing_month)}</td>
+                    <td><strong>{currency(inv.amount_due)}</strong></td>
+                    <td>{currency(inv.retainage)}</td>
+                    <td><span style={{ fontWeight: 800, color }}>{Number(inv.days_outstanding)} days</span></td>
+                    <td>{inv.qbo_invoice_number || <span style={{ color: 'var(--muted)' }}>Not sent</span>}</td>
+                    <td>{inv.invoice_sent ? <span className="badge badge-completed">Sent</span> : <span className="badge badge-pending">Pending</span>}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </>
+  );
+}
+
+// ─── Expenses & Cost Tracking ────────────────────────────────
+
+function ExpensesView({ analytics }) {
+  const expenses   = analytics.expenses || [];
+  const categories = analytics.expenseCategories || [];
+  const totalEst   = sumValues(expenses, 'total_estimate');
+  const totalAct   = sumValues(expenses, 'actual_cost');
+  const variance   = totalAct - totalEst;
+  const maxCat     = Math.max(...categories.map((c) => c.amount), 1);
+  const catColors  = ['#214f6f', '#2f8f5b', '#d99b2b', '#8e44ad', '#be6b2d'];
+
+  return (
+    <>
+      <div className="fin-kpi-grid" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
+        <FinKpiCard label="Total Estimated COGS" value={compactMoney(totalEst)} sub="Labor + materials + overhead" color="var(--brand)" />
+        <FinKpiCard label="Actual COGS Recognized" value={compactMoney(totalAct)} sub="From QBO cost entries" color="var(--orange)" />
+        <FinKpiCard label="Cost Variance" value={compactMoney(Math.abs(variance))} sub={variance < 0 ? 'Under budget ✓' : 'Over budget ⚠'} color={variance < 0 ? 'var(--green)' : 'var(--red)'} />
+        <FinKpiCard label="Highest Labor %" value={formatRatio(expenses.length ? Math.max(...expenses.map((e) => Number(e.contract_value) ? Number(e.est_labor) / Number(e.contract_value) : 0)) : 0)} sub="Across all projects" color="#8e44ad" />
+      </div>
+
+      <div className="two-col-grid">
+        <section className="panel">
+          <div className="panel-head"><h2>Cost Category Breakdown</h2><span>Estimated spend by type</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 14 }}>
+            {categories.map((c, i) => (
+              <HorizontalBar key={c.category} label={c.category} value={c.amount} max={maxCat} color={catColors[i % catColors.length]} sub={`${(c.pct * 100).toFixed(0)}% of total costs`} />
+            ))}
+          </div>
+        </section>
+
+        <section className="panel">
+          <div className="panel-head"><h2>Estimated vs. Actual by Project</h2><span>Cost variance tracking</span></div>
+          <div style={{ overflowX: 'auto' }}>
+            <table>
+              <thead><tr><th>Job</th><th>Project</th><th>PM</th><th>Est. COGS</th><th>Actual COGS</th><th>Variance</th><th>Status</th></tr></thead>
+              <tbody>
+                {expenses.map((e) => {
+                  const v = Number(e.actual_cost) - Number(e.total_estimate);
+                  const hasActual = Number(e.actual_cost) > 0;
+                  return (
+                    <tr key={e.project_id}>
+                      <td>{e.job_number || '—'}</td>
+                      <td><strong>{e.project_name}</strong></td>
+                      <td>{e.pm_name || '—'}</td>
+                      <td>{currency(e.total_estimate)}</td>
+                      <td>{hasActual ? currency(e.actual_cost) : <span style={{ color: 'var(--muted)' }}>Not started</span>}</td>
+                      <td style={{ color: !hasActual ? 'var(--muted)' : v > 0 ? 'var(--red)' : 'var(--green)', fontWeight: 700 }}>
+                        {!hasActual ? '—' : `${v >= 0 ? '+' : ''}${currency(v)}`}
+                      </td>
+                      <td><span className={`badge badge-${e.status}`}>{statusLabels[e.status] || e.status}</span></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
+
+// ─── State / Territory Performance ───────────────────────────
+
+function StateAnalyticsView({ analytics }) {
+  const states  = analytics.statePerformance || [];
+  const maxRev  = Math.max(...states.map((s) => Number(s.total_revenue)), 1);
+  const stateColors = ['#214f6f', '#2f8f5b', '#d99b2b', '#8e44ad'];
+
+  return (
+    <>
+      <div className="fin-kpi-grid" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
+        {states.map((s, i) => (
+          <div key={s.territory_name} className="fin-kpi-card" style={{ '--kpi-color': stateColors[i % stateColors.length] }}>
+            <span>{s.territory_name} ({s.state})</span>
+            <strong>{compactMoney(s.total_revenue)}</strong>
+            <small>GP: {compactMoney(s.gross_profit)} · {formatRatio(s.gross_profit / s.total_revenue)} margin</small>
+          </div>
+        ))}
+      </div>
+
+      <section className="panel">
+        <div className="panel-head"><h2>Revenue by Territory</h2><span>Ranked performance comparison</span></div>
+        <div style={{ padding: '16px 18px', display: 'grid', gap: 14 }}>
+          {states.map((s, i) => (
+            <HorizontalBar key={s.territory_name} label={`${s.territory_name} (${s.state})`} value={Number(s.total_revenue)} max={maxRev} color={stateColors[i % stateColors.length]} sub={`${s.project_count} projects · NP: ${compactMoney(s.np_dollars)}`} />
+          ))}
+        </div>
+      </section>
+
+      <section className="panel">
+        <div className="panel-head"><h2>State Financial Performance</h2><span>Full P&amp;L breakdown by territory</span></div>
+        <div style={{ overflowX: 'auto' }}>
+          <table>
+            <thead>
+              <tr><th>Territory</th><th>State</th><th>Projects</th><th>Revenue</th><th>Est. COGS</th><th>Gross Profit</th><th>GP %</th><th>Net Profit</th><th>NP %</th><th>Labor Cost</th><th>Tax Rate</th></tr>
+            </thead>
+            <tbody>
+              {states.map((s) => (
+                <tr key={s.territory_name}>
+                  <td><strong>{s.territory_name}</strong></td>
+                  <td><span className="badge badge-active">{s.state}</span></td>
+                  <td>{s.project_count}</td>
+                  <td><strong>{currency(s.total_revenue)}</strong></td>
+                  <td>{currency(s.total_cost)}</td>
+                  <td style={{ color: 'var(--green)' }}><strong>{currency(s.gross_profit)}</strong></td>
+                  <td><span className={`badge ${s.gross_profit / s.total_revenue >= 0.18 ? 'badge-completed' : 'badge-pending'}`}>{formatRatio(s.gross_profit / s.total_revenue)}</span></td>
+                  <td style={{ color: 'var(--green)' }}>{currency(s.np_dollars)}</td>
+                  <td>{formatRatio(s.np_dollars / s.total_revenue)}</td>
+                  <td>{currency(s.labor_cost)}</td>
+                  <td>{(s.tax_rate * 100).toFixed(2)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </>
+  );
+}
+
+// ─── Payroll & Installers ─────────────────────────────────────
+
+function PayrollAnalyticsView({ analytics }) {
+  const installers   = analytics.installers || [];
+  const payrollMonthly = analytics.payrollMonthly || [];
+  const totalHours   = sumValues(installers, 'ytd_hours');
+  const totalLabor   = sumValues(installers, 'ytd_labor_cost');
+  const totalOT      = sumValues(installers, 'overtime_hours');
+  const avgEfficiency = installers.length ? installers.reduce((s, i) => s + Number(i.efficiency_rating), 0) / installers.length : 0;
+
+  const chartLabels = payrollMonthly.map((m) => monthLabel(m.metric_month));
+  const chartSeries = [
+    { label: 'Labor Cost',      color: '#214f6f', values: payrollMonthly.map((m) => Number(m.total_labor_cost)) },
+    { label: 'Overtime Cost',   color: '#b84a4a', values: payrollMonthly.map((m) => Number(m.overtime_cost)) },
+  ];
+
+  return (
+    <>
+      <div className="fin-kpi-grid" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
+        <FinKpiCard label="YTD Installer Labor Cost" value={compactMoney(totalLabor)} sub={`${totalHours} total hours`}         color="var(--brand)" />
+        <FinKpiCard label="YTD Overtime Hours"       value={totalOT}                  sub="Overtime exposure"                  color="var(--red)" />
+        <FinKpiCard label="Avg Efficiency Rating"    value={`${(avgEfficiency * 100).toFixed(0)}%`} sub="Across all installers" color="var(--green)" />
+        <FinKpiCard label="Cost per Hour (Avg)"      value={currency(totalHours ? totalLabor / totalHours : 0)} sub="Blended labor rate" color="var(--gold)" />
+      </div>
+
+      {payrollMonthly.length > 0 && (
+        <MultiSeriesChart title="Monthly Labor Cost vs Overtime" series={chartSeries} labels={chartLabels} />
+      )}
+
+      <section className="panel">
+        <div className="panel-head"><h2>Installer Payroll Detail</h2><span>Labor efficiency &amp; cost per installer</span></div>
+        <div style={{ overflowX: 'auto' }}>
+          <table>
+            <thead>
+              <tr><th>Installer</th><th>Territory</th><th>Active Jobs</th><th>YTD Hours</th><th>YTD Labor Cost</th><th>Jobs Completed</th><th>Avg Hrs/Job</th><th>OT Hours</th><th>Efficiency</th></tr>
+            </thead>
+            <tbody>
+              {[...installers].sort((a, b) => b.efficiency_rating - a.efficiency_rating).map((inst) => (
+                <tr key={inst.id}>
+                  <td><strong>{inst.name}</strong></td>
+                  <td>{inst.territory_name}</td>
+                  <td>{inst.active_projects}</td>
+                  <td>{inst.ytd_hours}</td>
+                  <td><strong>{currency(inst.ytd_labor_cost)}</strong></td>
+                  <td>{inst.projects_completed}</td>
+                  <td>{inst.avg_hours_per_project}</td>
+                  <td style={{ color: inst.overtime_hours > 40 ? 'var(--red)' : 'var(--muted)', fontWeight: inst.overtime_hours > 40 ? 700 : 400 }}>{inst.overtime_hours}</td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <ProgressBar pct={inst.efficiency_rating} color={inst.efficiency_rating >= 0.9 ? 'var(--green)' : inst.efficiency_rating >= 0.8 ? 'var(--gold)' : 'var(--red)'} />
+                      <small style={{ whiteSpace: 'nowrap', fontWeight: 700 }}>{(inst.efficiency_rating * 100).toFixed(0)}%</small>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </>
+  );
+}
+
+// ─── Forecasting & Projections ────────────────────────────────
+
+function ForecastingView({ analytics, dashboard }) {
+  const fc = analytics.forecasting || {};
+  const combined = fc.combined || [];
+  const cashFlow = fc.cashFlow || [];
+  const upcoming = fc.upcomingBilling || [];
+  const revenueGoal = 9500000;
+  const ytdActual   = sumValues(combined.filter((m) => m.actual && m.revenue), 'revenue');
+  const projectedTotal = sumValues(combined, 'projected') + ytdActual;
+  const pipelineVal = (dashboard?.monthlyMetrics || demoMetrics).slice(-1)[0]?.pipeline_value || 0;
+
+  const chartLabels = combined.map((m) => m.month);
+  const chartSeries = [
+    { label: 'Actual Revenue',     color: '#214f6f', values: combined.map((m) => m.actual && m.revenue ? Number(m.revenue) : null) },
+    { label: 'Projected Revenue',  color: '#39ff14', dashed: true, values: combined.map((m) => m.projected ? Number(m.projected) : null) },
+    { label: '2026 Goal Line',     color: '#777',    dashed: true, values: combined.map(() => revenueGoal / 12) },
+  ];
+
+  const cfLabels = cashFlow.map((m) => m.month);
+  const cfSeries = [
+    { label: 'Cash Inflow',  color: '#2f8f5b', values: cashFlow.map((m) => m.inflow) },
+    { label: 'Cash Outflow', color: '#b84a4a', values: cashFlow.map((m) => m.outflow) },
+    { label: 'Net Cash Flow',color: '#d99b2b', dashed: true, values: cashFlow.map((m) => m.net) },
+  ];
+
+  return (
+    <>
+      <div className="fin-kpi-grid" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
+        <FinKpiCard label="YTD Actual Revenue"      value={compactMoney(ytdActual)}      sub={formatRatio(ytdActual / revenueGoal) + ' of annual goal'}  color="var(--brand)" />
+        <FinKpiCard label="Projected Full-Year"     value={compactMoney(projectedTotal)} sub="Based on current trajectory"                                color="var(--green)" />
+        <FinKpiCard label="Revenue to Goal"         value={compactMoney(revenueGoal - ytdActual)} sub={`${compactMoney(revenueGoal)} 2026 goal`}          color="var(--orange)" />
+        <FinKpiCard label="Active Pipeline"         value={compactMoney(pipelineVal)}   sub="Potential revenue available"                                 color="#8e44ad" />
+      </div>
+
+      <MultiSeriesChart title="Revenue Forecast: Actual vs. Projected vs. Goal" series={chartSeries} labels={chartLabels} />
+
+      <div className="two-col-grid">
+        {cashFlow.length > 0 && (
+          <MultiSeriesChart title="Cash Flow Projection" series={cfSeries} labels={cfLabels} />
+        )}
+
+        <section className="panel">
+          <div className="panel-head"><h2>Upcoming Billing Schedule</h2><span>Next invoices to send</span></div>
+          <div style={{ overflowX: 'auto' }}>
+            <table>
+              <thead><tr><th>Project</th><th>Amount</th><th>Due Date</th><th>Status</th></tr></thead>
+              <tbody>
+                {upcoming.map((u, i) => (
+                  <tr key={i}>
+                    <td><strong>{u.project_name}</strong></td>
+                    <td><strong>{currency(u.amount)}</strong></td>
+                    <td>{shortDate(u.due_date)}</td>
+                    <td><span className={`badge ${u.status === 'pending' ? 'badge-pending' : 'badge-active'}`}>{u.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
+
+// ─── Reports ─────────────────────────────────────────────────
+
+const reportTemplates = [
+  { group: 'Revenue',    title: 'Monthly P&L Summary',          desc: 'Revenue, GP, NP by month with YoY comparison' },
+  { group: 'Revenue',    title: 'Revenue by Territory',          desc: 'Contract value and margin split by region' },
+  { group: 'Revenue',    title: 'Top Customer Report',           desc: 'Ranked customers by lifetime revenue and profitability' },
+  { group: 'A/R',        title: 'Accounts Receivable Aging',     desc: 'Open invoices grouped by 0–30, 31–60, 61–90, 90+ days' },
+  { group: 'A/R',        title: 'Invoice Status Report',         desc: 'All invoices with QBO number, sent status, and amount' },
+  { group: 'Bids',       title: 'Bid Pipeline Report',           desc: 'Won/lost/pending bids with estimated vs actual margin' },
+  { group: 'Bids',       title: 'Underbid Analysis',             desc: 'Projects where actual GP fell below estimated GP' },
+  { group: 'Expenses',   title: 'COGS Variance Report',          desc: 'Estimated vs actual cost by project and category' },
+  { group: 'Expenses',   title: 'Labor Cost by Territory',       desc: 'Installer hours and labor cost by region' },
+  { group: 'Payroll',    title: 'Installer Productivity Report', desc: 'Efficiency ratings, hours, and OT by installer' },
+  { group: 'Payroll',    title: 'Overtime Cost Summary',         desc: 'Overtime hours and cost by installer and month' },
+  { group: 'Forecasting','title': 'Revenue Forecast',            desc: 'Projected revenue through year-end vs goal' },
+  { group: 'Forecasting','title': 'Cash Flow Projection',        desc: 'Monthly inflow/outflow/net for next 4 months' },
+];
+
+function ReportsView() {
+  const groups = [...new Set(reportTemplates.map((r) => r.group))];
+  return (
+    <div style={{ display: 'grid', gap: 18 }}>
+      <div className="fin-kpi-grid" style={{ gridTemplateColumns: 'repeat(4, minmax(0,1fr))' }}>
+        <FinKpiCard label="Report Templates"      value={reportTemplates.length} sub="Finance-ready formats"      color="var(--brand)" />
+        <FinKpiCard label="Report Categories"     value={groups.length}          sub="Organized by department"    color="var(--green)" />
+        <FinKpiCard label="A/R Reports"           value={reportTemplates.filter((r) => r.group === 'A/R').length}     sub="Invoicing &amp; collections" color="var(--orange)" />
+        <FinKpiCard label="Last Generated"        value="Today"                  sub="All data current"           color="#8e44ad" />
+      </div>
+      {groups.map((group) => (
+        <section key={group} className="panel">
+          <div className="panel-head"><h2>{group} Reports</h2><span>{reportTemplates.filter((r) => r.group === group).length} templates</span></div>
+          <div className="report-grid">
+            {reportTemplates.filter((r) => r.group === group).map((r) => (
+              <div key={r.title} className="report-card">
+                <strong>{r.title}</strong>
+                <p>{r.desc}</p>
+                <div className="report-card-actions">
+                  <button type="button" className="btn-outline">Preview</button>
+                  <button type="button">Export CSV</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
+
 function FinancialDashboard({ dashboard }) {
   const [finTab, setFinTab] = useState('overview');
   const [finData, setFinData] = useState(null);
@@ -1006,26 +1702,38 @@ function CalendarView({ projects }) {
   );
 }
 
+const navGroups = [
+  { label: null,          items: [['dashboard', 'Dashboard']] },
+  { label: 'Finance',     items: [['revenue', 'Revenue'], ['bids', 'Bids'], ['invoices', 'Invoices'], ['expenses', 'Expenses'], ['payroll', 'Payroll']] },
+  { label: 'Analytics',   items: [['states', 'State Analytics'], ['forecasting', 'Forecasting']] },
+  { label: 'Operations',  items: [['projects', 'Projects'], ['calendar', 'Calendar']] },
+  { label: 'Reports',     items: [['reports', 'Reports']] },
+];
+const allNavItems = navGroups.flatMap((g) => g.items);
+
 function ProjectManagerDashboard({ user }) {
   const [activeView, setActiveView] = useState('dashboard');
   const [areaId, setAreaId] = useState(user.territoryId || 0);
   const [apiDashboard, setApiDashboard] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
   const [loadingApi, setLoadingApi] = useState(false);
   const dashboard = normalizeDashboard(apiDashboard, areaId);
-  const views = [
-    ['dashboard', 'Dashboard'],
-    ['projects', 'Projects'],
-    ['calendar', 'Calendar'],
-    ['financials', 'Financials'],
-  ];
+  const analyticsData = analytics || demoAnalytics;
 
   async function refreshFromApi() {
     setLoadingApi(true);
     try {
-      const response = await fetch('/api/dashboard', { credentials: 'include' });
-      if (!response.ok) return;
-      const body = await response.json();
-      setApiDashboard(body.dashboards?.projectManager || null);
+      const [dashRes, analyticsRes] = await Promise.all([
+        fetch('/api/dashboard', { credentials: 'include' }),
+        fetch('/api/analytics', { credentials: 'include' }),
+      ]);
+      if (dashRes.ok) {
+        const body = await dashRes.json();
+        setApiDashboard(body.dashboards?.projectManager || null);
+      }
+      if (analyticsRes.ok) {
+        setAnalytics(await analyticsRes.json());
+      }
     } finally {
       setLoadingApi(false);
     }
@@ -1035,33 +1743,53 @@ function ProjectManagerDashboard({ user }) {
     if (!user.demo) refreshFromApi();
   }, []);
 
+  const currentLabel = allNavItems.find(([id]) => id === activeView)?.[1] || '';
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand"><strong>James Blinds</strong><span>Mission Control</span></div>
-        {views.map(([id, label]) => <button className={activeView === id ? 'nav-active' : ''} key={id} onClick={() => setActiveView(id)} type="button">{label}</button>)}
-        <div className="user-card"><strong>{user.name}</strong><span>{user.role?.replace('_', ' ') || 'project manager'}</span></div>
+        <div className="brand"><strong>James Blinds</strong><span>Finance &amp; Operations</span></div>
+        {navGroups.map((group) => (
+          <div key={group.label || 'main'} className="nav-group">
+            {group.label && <span className="nav-group-label">{group.label}</span>}
+            {group.items.map(([id, label]) => (
+              <button className={activeView === id ? 'nav-active' : ''} key={id} onClick={() => setActiveView(id)} type="button">{label}</button>
+            ))}
+          </div>
+        ))}
+        <div className="user-card">
+          <strong>{user.name}</strong>
+          <span>{user.role?.replace('_', ' ') || 'finance'}</span>
+          {!analytics && !loadingApi && <span style={{ fontSize: 10, color: 'rgba(255,255,255,.45)', marginTop: 4, display: 'block' }}>Demo data</span>}
+        </div>
       </aside>
 
       <main className="dashboard">
         <header className="page-head">
-          <div><p>{getAreaName(areaId)}</p><h1>{views.find(([id]) => id === activeView)?.[1]}</h1></div>
+          <div><p>{getAreaName(areaId)}</p><h1>{currentLabel}</h1></div>
           <div className="actions">
             <select value={areaId} onChange={(event) => setAreaId(Number(event.target.value))}>
-              <option value="0">All areas</option>
+              <option value="0">All territories</option>
               <option value="1">Charlotte Metro</option>
               <option value="2">Lake Norman</option>
               <option value="3">South Carolina</option>
               <option value="4">Triad</option>
             </select>
-            <button onClick={refreshFromApi} type="button">{loadingApi ? 'Refreshing...' : 'Refresh API'}</button>
+            <button onClick={refreshFromApi} type="button">{loadingApi ? 'Loading…' : 'Refresh Data'}</button>
           </div>
         </header>
 
-        {activeView === 'dashboard' && <DashboardHome dashboard={dashboard} />}
-        {activeView === 'projects' && <ProjectTable projects={dashboard.projects || []} />}
-        {activeView === 'calendar' && <CalendarView projects={dashboard.projects || []} />}
-        {activeView === 'financials' && <FinancialDashboard dashboard={dashboard} />}
+        {activeView === 'dashboard'   && <DashboardHome dashboard={dashboard} />}
+        {activeView === 'revenue'     && <RevenueView analytics={analyticsData} />}
+        {activeView === 'bids'        && <BidsAnalyticsView analytics={analyticsData} />}
+        {activeView === 'invoices'    && <InvoicesView analytics={analyticsData} />}
+        {activeView === 'expenses'    && <ExpensesView analytics={analyticsData} />}
+        {activeView === 'payroll'     && <PayrollAnalyticsView analytics={analyticsData} />}
+        {activeView === 'states'      && <StateAnalyticsView analytics={analyticsData} />}
+        {activeView === 'forecasting' && <ForecastingView analytics={analyticsData} dashboard={dashboard} />}
+        {activeView === 'projects'    && <ProjectTable projects={dashboard.projects || []} />}
+        {activeView === 'calendar'    && <CalendarView projects={dashboard.projects || []} />}
+        {activeView === 'reports'     && <ReportsView />}
       </main>
     </div>
   );
