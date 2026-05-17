@@ -533,18 +533,384 @@ function CalendarView({ projects }) {
   );
 }
 
+// ─── Demo data for PM views ────────────────────────────────────────────────
+
+const demoInstallers = [
+  { id: 1, name: 'Marcus Webb',    territory_name: 'Charlotte Metro', current_job: 'Uptown Medical Office Shades',  ytd_hours: 680, efficiency_rating: 0.94, overtime_hours: 24, status: 'on-site'  },
+  { id: 2, name: 'Devon Clark',    territory_name: 'Charlotte Metro', current_job: 'Crescent South Apartments',      ytd_hours: 540, efficiency_rating: 0.88, overtime_hours: 40, status: 'on-site'  },
+  { id: 7, name: 'Darrell Price',  territory_name: 'Charlotte Metro', current_job: 'Ballantyne Corporate Park Ph.3', ytd_hours: 610, efficiency_rating: 0.91, overtime_hours: 32, status: 'staging'  },
+  { id: 3, name: 'Jake Norris',    territory_name: 'Lake Norman',     current_job: 'Huntersville Luxury Apartments', ytd_hours: 520, efficiency_rating: 0.96, overtime_hours:  8, status: 'on-site'  },
+  { id: 8, name: 'Carlos Vega',    territory_name: 'Lake Norman',     current_job: 'Lake Norman Hotel Renovation',   ytd_hours: 380, efficiency_rating: 0.89, overtime_hours: 22, status: 'pending'  },
+  { id: 4, name: 'Trevor Shaw',    territory_name: 'South Carolina',  current_job: 'Palmetto Surgical Center',       ytd_hours: 390, efficiency_rating: 0.82, overtime_hours: 56, status: 'on-site'  },
+  { id: 9, name: 'Jermaine Ellis', territory_name: 'South Carolina',  current_job: 'Palmetto Surgical Center',       ytd_hours: 330, efficiency_rating: 0.93, overtime_hours: 12, status: 'on-site'  },
+  { id: 5, name: 'Luis Herrera',   territory_name: 'Triad',           current_job: 'Triad Multifamily Phase 1',      ytd_hours: 480, efficiency_rating: 0.97, overtime_hours:  0, status: 'on-site'  },
+  { id: 6, name: 'Ryan Potts',     territory_name: 'Triad',           current_job: 'Triad Multifamily Phase 1',      ytd_hours: 310, efficiency_rating: 0.79, overtime_hours: 64, status: 'on-site'  },
+  { id:10, name: 'Anthony Greene', territory_name: 'Triad',           current_job: 'Greensboro Medical Complex',     ytd_hours: 570, efficiency_rating: 0.85, overtime_hours: 38, status: 'wrap-up'  },
+];
+
+const demoBids = [
+  { id: 1, project_name: 'South End Retail Shell Shades',       company_name: 'Brookline Builders',            territory_name: 'Charlotte Metro', bid_date: '2026-05-04', bid_amount:  96500, estimated_gp: 33775, estimated_hours:  410, bid_status: 'sent',     won: false },
+  { id: 2, project_name: 'Crescent North Phase 2',              company_name: 'Crescent Property Group',       territory_name: 'Charlotte Metro', bid_date: '2026-04-22', bid_amount: 288000, estimated_gp:100800, estimated_hours: 1120, bid_status: 'awarded',  won: true  },
+  { id: 3, project_name: 'Greenville Clinic Fit-Out',           company_name: 'Palmetto Commercial Interiors', territory_name: 'South Carolina',  bid_date: '2026-05-09', bid_amount: 121400, estimated_gp: 42490, estimated_hours:  520, bid_status: 'pending',  won: false },
+  { id: 4, project_name: 'Greensboro Tech Park Office Shades',  company_name: 'Triad Multifamily Group',       territory_name: 'Triad',           bid_date: '2026-04-15', bid_amount: 178500, estimated_gp: 62475, estimated_hours:  740, bid_status: 'pending',  won: false },
+  { id: 5, project_name: 'Lake Norman Corporate Suites',        company_name: 'Lakeside Hospitality Partners', territory_name: 'Lake Norman',     bid_date: '2026-03-28', bid_amount: 156000, estimated_gp: 54600, estimated_hours:  650, bid_status: 'awarded',  won: true  },
+  { id: 6, project_name: 'South End Luxury Condos Ph.1',        company_name: 'Brookline Builders',            territory_name: 'Charlotte Metro', bid_date: '2026-04-08', bid_amount: 208000, estimated_gp: 72800, estimated_hours:  880, bid_status: 'sent',     won: false },
+  { id: 7, project_name: 'Columbia Office Complex Shades',      company_name: 'Palmetto Commercial Interiors', territory_name: 'South Carolina',  bid_date: '2026-03-14', bid_amount:  94500, estimated_gp: 33075, estimated_hours:  400, bid_status: 'declined', won: false },
+  { id: 8, project_name: 'Winston-Salem Outpatient Center',     company_name: 'Greensboro Medical Properties', territory_name: 'Triad',           bid_date: '2026-05-12', bid_amount: 213000, estimated_gp: 74550, estimated_hours:  890, bid_status: 'sent',     won: false },
+];
+
+const demoBillings = [
+  { job_number: 24001, project_name: 'Uptown Medical Office Shades',  company_name: 'Brookline Builders',            territory_name: 'Charlotte Metro', billing_month: '2026-05-01', bill_this_month: 31800, total_billed:  83800, remaining_to_bill: 113200, percent_complete: 0.42, invoice_sent: true,  qbo_invoice_number: 'INV-24001-05'   },
+  { job_number: 24002, project_name: 'Crescent South Apartments',      company_name: 'Crescent Property Group',       territory_name: 'Charlotte Metro', billing_month: '2026-05-01', bill_this_month: 31500, total_billed: 105500, remaining_to_bill: 235000, percent_complete: 0.31, invoice_sent: false, qbo_invoice_number: null              },
+  { job_number: 24003, project_name: 'Lake Norman Hotel Renovation',   company_name: 'Lakeside Hospitality Partners', territory_name: 'Lake Norman',     billing_month: null,         bill_this_month:     0, total_billed:      0, remaining_to_bill: 226750, percent_complete:    0, invoice_sent: false, qbo_invoice_number: null              },
+  { job_number: 24004, project_name: 'Palmetto Surgical Center',       company_name: 'Palmetto Commercial Interiors', territory_name: 'South Carolina',  billing_month: '2026-05-01', bill_this_month: 45388, total_billed:  88188, remaining_to_bill:  69112, percent_complete: 0.56, invoice_sent: true,  qbo_invoice_number: 'INV-24004-05'   },
+  { job_number: 24005, project_name: 'Riverfront Condo Unit 4B',       company_name: 'Brookline Builders',            territory_name: 'Charlotte Metro', billing_month: '2026-02-01', bill_this_month:  5000, total_billed:  30000, remaining_to_bill:      0, percent_complete:  1.0, invoice_sent: true,  qbo_invoice_number: 'INV-24005-FINAL'},
+  { job_number: 24006, project_name: 'Triad Multifamily Phase 1',      company_name: 'Triad Multifamily Group',       territory_name: 'Triad',           billing_month: '2026-05-01', bill_this_month: 80500, total_billed:  80500, remaining_to_bill: 322000, percent_complete: 0.20, invoice_sent: false, qbo_invoice_number: null              },
+];
+
+const demoCustomers = [
+  { id: 1, company_name: 'Brookline Builders',            territory_name: 'Charlotte Metro', company_type: 'General Contractor', contact_name: 'Jordan Miles',   contact_title: 'Senior PM',            phone: '704-555-0201', active_projects: 3, total_value: 511800, last_interaction: '2026-05-10', interaction_type: 'Site Meeting'    },
+  { id: 2, company_name: 'Crescent Property Group',        territory_name: 'Charlotte Metro', company_type: 'Developer',          contact_name: 'Priya Shah',     contact_title: 'Development Manager',  phone: '704-555-0202', active_projects: 1, total_value: 340500, last_interaction: '2026-05-12', interaction_type: 'Billing Call'    },
+  { id: 3, company_name: 'Lakeside Hospitality Partners',  territory_name: 'Lake Norman',     company_type: 'Owner',              contact_name: 'Elliot Park',    contact_title: 'Owner Rep',            phone: '704-555-0203', active_projects: 1, total_value: 226750, last_interaction: '2026-04-28', interaction_type: 'Email'           },
+  { id: 4, company_name: 'Palmetto Commercial Interiors',  territory_name: 'South Carolina',  company_type: 'General Contractor', contact_name: 'Sara Bennett',   contact_title: 'Operations Director',  phone: '803-555-0204', active_projects: 1, total_value: 157300, last_interaction: '2026-05-14', interaction_type: 'Schedule Update' },
+  { id: 5, company_name: 'Triad Multifamily Group',        territory_name: 'Triad',           company_type: 'Developer',          contact_name: 'Ryan Cooper',    contact_title: 'Project Executive',    phone: '336-555-0210', active_projects: 1, total_value: 402500, last_interaction: '2026-04-18', interaction_type: 'Contract Review' },
+  { id: 6, company_name: 'SouthPark Capital Partners',     territory_name: 'Charlotte Metro', company_type: 'Developer',          contact_name: 'Marcus Finley',  contact_title: 'VP of Construction',   phone: '704-555-0205', active_projects: 1, total_value: 145000, last_interaction: '2026-05-08', interaction_type: 'Kickoff Meeting' },
+  { id: 7, company_name: 'Huntersville Residential',       territory_name: 'Lake Norman',     company_type: 'Developer',          contact_name: 'Tyler Drummond', contact_title: 'Construction Manager', phone: '704-555-0207', active_projects: 1, total_value: 412000, last_interaction: '2026-05-01', interaction_type: 'Site Walk'       },
+];
+
+// ─── Shared PM helpers ─────────────────────────────────────────────────────
+
+function PmBar({ label, value, max, color = 'var(--brand)', sub }) {
+  const pct = max ? Math.min(100, (Number(value) / Number(max)) * 100) : 0;
+  return (
+    <div style={{ display: 'grid', gap: 6 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+        <span>{label}</span><strong style={{ color }}>{sub || currency(value)}</strong>
+      </div>
+      <div style={{ height: 7, borderRadius: 999, background: '#e8edf0', overflow: 'hidden' }}>
+        <div style={{ height: '100%', borderRadius: 'inherit', background: color, width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function PlaceholderView({ title, icon, description }) {
+  return (
+    <section className="panel" style={{ margin: '40px auto', maxWidth: 520, padding: 64, textAlign: 'center' }}>
+      <div style={{ fontSize: 52, marginBottom: 20, opacity: .65 }}>{icon}</div>
+      <h2 style={{ margin: '0 0 12px', fontSize: 24 }}>{title}</h2>
+      <p style={{ margin: 0, color: 'var(--muted)', lineHeight: 1.7, fontSize: 15 }}>{description}</p>
+    </section>
+  );
+}
+
+// ─── PM Views ──────────────────────────────────────────────────────────────
+
+function InstallersView({ installers }) {
+  const onSite  = installers.filter((i) => i.status === 'on-site').length;
+  const totalHrs = installers.reduce((s, i) => s + i.ytd_hours, 0);
+  const avgEff  = installers.length ? installers.reduce((s, i) => s + i.efficiency_rating, 0) / installers.length : 0;
+  const highOT  = installers.filter((i) => i.overtime_hours > 40).length;
+  const effColor = (v) => v >= 0.9 ? 'var(--green)' : v >= 0.8 ? 'var(--orange)' : 'var(--red)';
+
+  return (
+    <>
+      <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
+        <StatCard label="Total Installers"   value={installers.length} note="In selected area" />
+        <StatCard label="Currently On-Site"  value={onSite}            note={`${installers.length - onSite} staging or pending`} />
+        <StatCard label="Avg Efficiency"     value={formatRatio(avgEff)} note="YTD performance rating" />
+        <StatCard label="High OT Alert"      value={highOT}            note="Installers > 40 OT hrs" />
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Installer Roster</h2><span>{installers.length} field technicians</span></div>
+        <table>
+          <thead><tr><th>Installer</th><th>Territory</th><th>Current Assignment</th><th>Status</th><th>YTD Hours</th><th>Efficiency</th><th>OT Hours</th></tr></thead>
+          <tbody>
+            {installers.map((inst) => {
+              const col = effColor(inst.efficiency_rating);
+              return (
+                <tr key={inst.id}>
+                  <td><strong>{inst.name}</strong></td>
+                  <td>{inst.territory_name}</td>
+                  <td>{inst.current_job || '—'}</td>
+                  <td><span className={`badge badge-${inst.status === 'on-site' ? 'active' : inst.status === 'pending' ? 'pending' : 'completed'}`}>{inst.status}</span></td>
+                  <td>{inst.ytd_hours}h</td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ flex: 1, height: 7, borderRadius: 999, background: '#e8edf0', overflow: 'hidden', minWidth: 60 }}>
+                        <div style={{ height: '100%', borderRadius: 'inherit', background: col, width: `${inst.efficiency_rating * 100}%` }} />
+                      </div>
+                      <span style={{ color: col, fontWeight: 700, fontSize: 13, minWidth: 36 }}>{formatRatio(inst.efficiency_rating)}</span>
+                    </div>
+                  </td>
+                  <td style={{ color: inst.overtime_hours > 40 ? 'var(--red)' : 'inherit', fontWeight: inst.overtime_hours > 40 ? 700 : 400 }}>{inst.overtime_hours}h</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+function KPIView({ dashboard }) {
+  const metrics = dashboard.monthlyMetrics || demoMetrics;
+  const perf    = buildPerformanceModel(dashboard);
+  const projects = dashboard.projects || [];
+  const active    = projects.filter((p) => p.status === 'active').length;
+  const completed = projects.filter((p) => p.status === 'completed').length;
+  const maxStatus = Math.max(...(dashboard.byStatus || []).map((s) => s.contract_value), 1);
+  const maxTerr   = Math.max(...(dashboard.byTerritory || []).map((t) => t.contract_value), 1);
+  const statusColors = ['var(--brand)', 'var(--gold)', 'var(--green)', 'var(--red)'];
+  const terrColors   = ['#214f6f', '#2f8f5b', '#d99b2b', '#8e44ad'];
+
+  return (
+    <>
+      <section className="stats-grid">
+        <StatCard label="Active Projects"     value={active}    note={`${projects.length} total in area`} />
+        <StatCard label="Completed YTD"       value={completed} note="Closed jobs" />
+        {perf.map((item) => <StatCard key={item.label} label={item.label} value={item.value} note={item.note} />)}
+      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+        <section className="panel">
+          <div className="panel-head"><h2>Status Breakdown</h2><span>By contract value</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 14 }}>
+            {(dashboard.byStatus || []).map((item, i) => (
+              <PmBar key={item.status}
+                label={`${statusLabels[item.status] || item.status} · ${item.project_count} jobs`}
+                value={item.contract_value} max={maxStatus} color={statusColors[i % statusColors.length]} />
+            ))}
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Territory Distribution</h2><span>Contract value by area</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 14 }}>
+            {(dashboard.byTerritory || []).map((area, i) => (
+              <PmBar key={area.territory_id}
+                label={`${getAreaName(area.territory_id, area.territory_name)} · ${area.project_count} jobs`}
+                value={area.contract_value} max={maxTerr} color={terrColors[i % terrColors.length]} />
+            ))}
+          </div>
+        </section>
+      </div>
+      <BarChart title="Revenue Over Year" subtitle="earned vs projected pipeline" data={metrics} valueKey="total_won_value" projectedKey="pipeline_value" />
+    </>
+  );
+}
+
+function FinancesView({ billings }) {
+  const totalBacklog  = billings.reduce((s, b) => s + Number(b.remaining_to_bill || 0), 0);
+  const billedMonth   = billings.reduce((s, b) => s + Number(b.bill_this_month || 0), 0);
+  const invoiceSent   = billings.filter((b) => b.invoice_sent && b.bill_this_month > 0).length;
+  const invoicePend   = billings.filter((b) => !b.invoice_sent && b.bill_this_month > 0).length;
+
+  return (
+    <>
+      <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
+        <StatCard label="Total Backlog"      value={currency(totalBacklog)} note="Remaining to bill across jobs" />
+        <StatCard label="Billed This Month"  value={currency(billedMonth)}  note="Current billing cycle" />
+        <StatCard label="Invoices Sent"      value={invoiceSent}            note="Awaiting client payment" />
+        <StatCard label="Invoices Pending"   value={invoicePend}            note="Not yet sent this cycle" />
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Project Billing Status</h2><span>{billings.length} jobs</span></div>
+        <table>
+          <thead><tr><th>Job</th><th>Project</th><th>Customer</th><th>Billed This Mo.</th><th>Total Billed</th><th>% Complete</th><th>Remaining</th><th>Invoice</th></tr></thead>
+          <tbody>
+            {billings.map((b) => (
+              <tr key={b.job_number}>
+                <td>{b.job_number}</td>
+                <td><strong>{b.project_name}</strong></td>
+                <td>{b.company_name}</td>
+                <td><strong>{currency(b.bill_this_month)}</strong></td>
+                <td>{currency(b.total_billed)}</td>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ flex: 1, height: 7, borderRadius: 999, background: '#e8edf0', overflow: 'hidden', minWidth: 50 }}>
+                      <div style={{ height: '100%', borderRadius: 'inherit', background: 'var(--brand)', width: `${b.percent_complete * 100}%` }} />
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, minWidth: 32 }}>{Math.round(b.percent_complete * 100)}%</span>
+                  </div>
+                </td>
+                <td>{currency(b.remaining_to_bill)}</td>
+                <td>{b.invoice_sent
+                  ? <span className="badge badge-completed">{b.qbo_invoice_number || 'Sent'}</span>
+                  : <span className="badge badge-pending">{b.bill_this_month > 0 ? 'Pending' : 'Not started'}</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+function CustomersView({ customers }) {
+  const active     = customers.filter((c) => c.active_projects > 0).length;
+  const totalValue = customers.reduce((s, c) => s + Number(c.total_value || 0), 0);
+  const types      = [...new Set(customers.map((c) => c.company_type))].length;
+
+  return (
+    <>
+      <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
+        <StatCard label="Total Clients"       value={customers.length} note={`${types} company types`} />
+        <StatCard label="Active Relationships" value={active}           note="Clients with open jobs" />
+        <StatCard label="Total Account Value"  value={currency(totalValue)} note="All accounts combined" />
+        <StatCard label="Avg Account Size"     value={currency(customers.length ? totalValue / customers.length : 0)} note="Per client" />
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Customer Directory</h2><span>{customers.length} accounts</span></div>
+        <table>
+          <thead><tr><th>Company</th><th>Territory</th><th>Type</th><th>Primary Contact</th><th>Phone</th><th>Active Jobs</th><th>Total Value</th><th>Last Touch</th></tr></thead>
+          <tbody>
+            {customers.map((c) => (
+              <tr key={c.id}>
+                <td><strong>{c.company_name}</strong></td>
+                <td>{c.territory_name}</td>
+                <td><span className="badge badge-pending">{c.company_type}</span></td>
+                <td><strong>{c.contact_name}</strong><small>{c.contact_title}</small></td>
+                <td>{c.phone || '—'}</td>
+                <td style={{ textAlign: 'center' }}>{c.active_projects}</td>
+                <td><strong>{currency(c.total_value)}</strong></td>
+                <td><strong>{shortDate(c.last_interaction)}</strong><small>{c.interaction_type}</small></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+function BidsView({ bids }) {
+  const won     = bids.filter((b) => b.won || b.bid_status === 'awarded');
+  const pending = bids.filter((b) => ['pending', 'sent'].includes(b.bid_status) && !b.won);
+  const lost    = bids.filter((b) => ['declined', 'lost'].includes(b.bid_status));
+  const winRate = bids.length ? won.length / bids.length : 0;
+  const totalValue = bids.reduce((s, b) => s + Number(b.bid_amount || 0), 0);
+  const badge   = { awarded: 'badge-completed', sent: 'badge-active', pending: 'badge-pending', declined: 'badge-active', lost: 'badge-active' };
+
+  return (
+    <>
+      <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
+        <StatCard label="Total Bids"       value={bids.length}    note={currency(totalValue) + ' total value'} />
+        <StatCard label="Bids Won"         value={won.length}     note={currency(won.reduce((s,b)=>s+Number(b.bid_amount),0)) + ' awarded'} />
+        <StatCard label="Pending Decision" value={pending.length} note="Awaiting client choice" />
+        <StatCard label="Win Rate"         value={formatRatio(winRate)} note={`${lost.length} lost`} />
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Bids &amp; Estimates Log</h2><span>{bids.length} bids tracked</span></div>
+        <table>
+          <thead><tr><th>Date</th><th>Project</th><th>Client</th><th>Territory</th><th>Bid Amount</th><th>Est. GP</th><th>Est. Hours</th><th>Status</th></tr></thead>
+          <tbody>
+            {[...bids].sort((a, b) => (b.bid_date || '').localeCompare(a.bid_date || '')).map((b) => (
+              <tr key={b.id}>
+                <td>{shortDate(b.bid_date)}</td>
+                <td><strong>{b.project_name}</strong></td>
+                <td>{b.company_name}</td>
+                <td>{b.territory_name}</td>
+                <td><strong>{currency(b.bid_amount)}</strong></td>
+                <td style={{ color: 'var(--green)' }}>
+                  {currency(b.estimated_gp)}
+                  <small style={{ display: 'block', color: 'var(--muted)' }}>{b.bid_amount ? formatRatio(b.estimated_gp / b.bid_amount) : '—'}</small>
+                </td>
+                <td>{b.estimated_hours}h</td>
+                <td><span className={`badge ${badge[b.bid_status] || 'badge-pending'}`}>{b.bid_status}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+function ReportsView() {
+  const templates = [
+    { title: 'Project Status Summary',     description: 'All active jobs with install dates, status, and billing progress.', group: 'Projects' },
+    { title: 'Weekly Field Report',         description: 'Installer hours, on-site activity, and schedule variances.',        group: 'Projects' },
+    { title: 'Install Schedule Export',     description: 'Calendar of install start/end dates by territory.',                 group: 'Projects' },
+    { title: 'Billing Cycle Summary',       description: 'Current billing per project with invoice status.',                  group: 'Finance'  },
+    { title: 'Bid & Estimate Log',          description: 'All bids sent with GP estimate and decision status.',               group: 'Finance'  },
+    { title: 'Customer Contact Sheet',      description: 'Full client directory with contacts and phone numbers.',            group: 'Customers'},
+    { title: 'Installer Efficiency Report', description: 'YTD hours, OT flags, and efficiency ratings by technician.',       group: 'Field'    },
+    { title: 'Monthly KPI Summary',         description: 'Hit rate, PPMH, pacing, and install completion metrics.',          group: 'Field'    },
+  ];
+  const groups = [...new Set(templates.map((t) => t.group))];
+  return (
+    <>
+      <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
+        <StatCard label="Report Templates"   value={templates.length} note="Ready to export" />
+        <StatCard label="Export Formats"     value="CSV / PDF"        note="Download anytime" />
+        <StatCard label="Last Export"        value="May 14"           note="Weekly Field Report" />
+        <StatCard label="Scheduled Reports"  value={2}               note="Auto-send Fridays" />
+      </section>
+      {groups.map((group) => (
+        <section key={group} className="panel" style={{ marginBottom: 18 }}>
+          <div className="panel-head"><h2>{group} Reports</h2><span>{templates.filter((t) => t.group === group).length} templates</span></div>
+          <div style={{ borderTop: '1px solid var(--line)' }}>
+            {templates.filter((t) => t.group === group).map((t) => (
+              <div key={t.title} style={{ padding: '14px 18px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                <div>
+                  <strong style={{ display: 'block', marginBottom: 3 }}>{t.title}</strong>
+                  <small style={{ color: 'var(--muted)' }}>{t.description}</small>
+                </div>
+                <button type="button" style={{ fontSize: 12, padding: '7px 14px', whiteSpace: 'nowrap', background: 'var(--brand)' }}>Export CSV</button>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+    </>
+  );
+}
+
+// ─── ProjectManagerDashboard ───────────────────────────────────────────────
+
 function ProjectManagerDashboard({ user }) {
   const [activeView, setActiveView] = useState('dashboard');
   const [areaId, setAreaId] = useState(user.territoryId || 0);
   const [apiDashboard, setApiDashboard] = useState(null);
   const [loadingApi, setLoadingApi] = useState(false);
   const dashboard = normalizeDashboard(apiDashboard, areaId);
-  const views = [
-    ['dashboard', 'Dashboard'],
-    ['projects', 'Projects'],
-    ['calendar', 'Calendar'],
-    ['financials', 'Financials'],
+
+  const tName = areaId ? territoryNames[areaId] : null;
+  const filteredInstallers = tName ? demoInstallers.filter((i) => i.territory_name === tName) : demoInstallers;
+  const filteredBids       = tName ? demoBids.filter((b) => b.territory_name === tName) : demoBids;
+  const filteredBillings   = tName ? demoBillings.filter((b) => b.territory_name === tName) : demoBillings;
+  const filteredCustomers  = tName ? demoCustomers.filter((c) => c.territory_name === tName) : demoCustomers;
+
+  const navMain = [
+    ['dashboard',  'Dashboard'],
+    ['projects',   'Projects'],
+    ['scheduling', 'Scheduling'],
+    ['installers', 'Installers'],
+    ['kpis',       'KPIs & Performance'],
+    ['finances',   'Finances'],
+    ['customers',  'Customers'],
+    ['bids',       'Bids & Estimates'],
+    ['inventory',  'Inventory'],
+    ['reports',    'Reports'],
   ];
+  const navUtil = [
+    ['messages',  'Messages'],
+    ['documents', 'Documents'],
+    ['alerts',    'Alerts'],
+    ['settings',  'Settings'],
+  ];
+  const currentLabel = [...navMain, ...navUtil].find(([id]) => id === activeView)?.[1] || '';
+
+  function initials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    return parts.length >= 2 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : parts[0].slice(0, 2).toUpperCase();
+  }
+  function formatRole(role) {
+    if (!role) return 'Project Manager';
+    return role.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  }
 
   async function refreshFromApi() {
     setLoadingApi(true);
@@ -558,37 +924,57 @@ function ProjectManagerDashboard({ user }) {
     }
   }
 
-  useEffect(() => {
-    if (!user.demo) refreshFromApi();
-  }, []);
+  useEffect(() => { if (!user.demo) refreshFromApi(); }, []);
 
   return (
     <div className="app-shell">
       <aside className="sidebar">
         <div className="brand"><strong>James Blinds</strong><span>Mission Control</span></div>
-        {views.map(([id, label]) => <button className={activeView === id ? 'nav-active' : ''} key={id} onClick={() => setActiveView(id)} type="button">{label}</button>)}
-        <div className="user-card"><strong>{user.name}</strong><span>{user.role?.replace('_', ' ') || 'project manager'}</span></div>
+        {navMain.map(([id, label]) => (
+          <button key={id} className={activeView === id ? 'nav-active' : ''} onClick={() => setActiveView(id)} type="button">{label}</button>
+        ))}
+        <div className="nav-divider" />
+        {navUtil.map(([id, label]) => (
+          <button key={id} className={activeView === id ? 'nav-active' : ''} onClick={() => setActiveView(id)} type="button">{label}</button>
+        ))}
+        <div className="user-card">
+          <div className="user-avatar">{initials(user.name)}</div>
+          <div className="user-info">
+            <strong>{user.name}</strong>
+            <span>{formatRole(user.role)}</span>
+          </div>
+        </div>
       </aside>
 
       <main className="dashboard">
         <header className="page-head">
-          <div><p>{getAreaName(areaId)}</p><h1>{views.find(([id]) => id === activeView)?.[1]}</h1></div>
+          <div><p>{getAreaName(areaId)}</p><h1>{currentLabel}</h1></div>
           <div className="actions">
-            <select value={areaId} onChange={(event) => setAreaId(Number(event.target.value))}>
+            <select value={areaId} onChange={(e) => setAreaId(Number(e.target.value))}>
               <option value="0">All areas</option>
               <option value="1">Charlotte Metro</option>
               <option value="2">Lake Norman</option>
               <option value="3">South Carolina</option>
               <option value="4">Triad</option>
             </select>
-            <button onClick={refreshFromApi} type="button">{loadingApi ? 'Refreshing...' : 'Refresh API'}</button>
+            <button onClick={refreshFromApi} type="button">{loadingApi ? 'Refreshing...' : 'Refresh Data'}</button>
           </div>
         </header>
 
-        {activeView === 'dashboard' && <DashboardHome dashboard={dashboard} />}
-        {activeView === 'projects' && <ProjectTable projects={dashboard.projects || []} />}
-        {activeView === 'calendar' && <CalendarView projects={dashboard.projects || []} />}
-        {activeView === 'financials' && <FinancialDashboard dashboard={dashboard} />}
+        {activeView === 'dashboard'  && <DashboardHome   key={areaId} dashboard={dashboard} />}
+        {activeView === 'projects'   && <ProjectTable    key={areaId} projects={dashboard.projects || []} />}
+        {activeView === 'scheduling' && <CalendarView    key={areaId} projects={dashboard.projects || []} />}
+        {activeView === 'installers' && <InstallersView  key={areaId} installers={filteredInstallers} />}
+        {activeView === 'kpis'       && <KPIView         key={areaId} dashboard={dashboard} />}
+        {activeView === 'finances'   && <FinancesView    key={areaId} billings={filteredBillings} />}
+        {activeView === 'customers'  && <CustomersView   key={areaId} customers={filteredCustomers} />}
+        {activeView === 'bids'       && <BidsView        key={areaId} bids={filteredBids} />}
+        {activeView === 'inventory'  && <PlaceholderView key={areaId} title="Inventory" icon="📦" description="Material and product tracking coming soon. Track blind types, SKUs, and stock levels by job." />}
+        {activeView === 'reports'    && <ReportsView     key={areaId} />}
+        {activeView === 'messages'   && <PlaceholderView key={areaId} title="Messages"  icon="💬" description="Team messaging and client communication threads coming soon." />}
+        {activeView === 'documents'  && <PlaceholderView key={areaId} title="Documents" icon="📄" description="Contract storage, submittals, and closeout packages coming soon." />}
+        {activeView === 'alerts'     && <PlaceholderView key={areaId} title="Alerts"    icon="🔔" description="Smart notifications for overdue invoices, schedule conflicts, and OT flags." />}
+        {activeView === 'settings'   && <PlaceholderView key={areaId} title="Settings"  icon="⚙️" description="User preferences, territory assignments, and notification settings coming soon." />}
       </main>
     </div>
   );

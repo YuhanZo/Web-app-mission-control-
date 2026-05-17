@@ -173,6 +173,9 @@ button:disabled {
 }
 
 .user-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
   margin-top: auto;
   border-top: 1px solid rgba(255, 255, 255, .16);
   padding-top: 16px;
@@ -782,4 +785,75 @@ td small {
     flex-direction: column;
     align-items: stretch;
   }
+}
+
+/* ─── Animations ──────────────────────────────────────────────────────────── */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.stat,
+.panel,
+.pacing-card,
+.fin-kpi-card,
+.aging-bucket,
+.report-card {
+  animation: fadeInUp 0.35s ease both;
+}
+
+.stat:nth-child(1), .fin-kpi-card:nth-child(1), .pacing-card:nth-child(1) { animation-delay:   0ms; }
+.stat:nth-child(2), .fin-kpi-card:nth-child(2), .pacing-card:nth-child(2) { animation-delay:  55ms; }
+.stat:nth-child(3), .fin-kpi-card:nth-child(3), .pacing-card:nth-child(3) { animation-delay: 110ms; }
+.stat:nth-child(4), .fin-kpi-card:nth-child(4), .pacing-card:nth-child(4) { animation-delay: 165ms; }
+.stat:nth-child(5), .fin-kpi-card:nth-child(5), .pacing-card:nth-child(5) { animation-delay: 220ms; }
+.stat:nth-child(6), .fin-kpi-card:nth-child(6), .pacing-card:nth-child(6) { animation-delay: 275ms; }
+
+.panel:nth-child(1) { animation-delay:   0ms; }
+.panel:nth-child(2) { animation-delay:  70ms; }
+.panel:nth-child(3) { animation-delay: 140ms; }
+.panel:nth-child(4) { animation-delay: 210ms; }
+.panel:nth-child(5) { animation-delay: 280ms; }
+
+/* ─── Nav divider ─────────────────────────────────────────────────────────── */
+
+.nav-divider {
+  border-top: 1px solid rgba(255, 255, 255, .16);
+  margin: 8px 0;
+}
+
+/* ─── User avatar & info ──────────────────────────────────────────────────── */
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-info strong {
+  font-size: 13px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-info span {
+  font-size: 11px;
+  color: rgba(255, 255, 255, .55);
 }
