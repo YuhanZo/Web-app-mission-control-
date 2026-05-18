@@ -25,6 +25,81 @@ const demoMetrics = [
   { metric_month: '2026-05-01', revenue_earned_to_date: 409400, pipeline_value: 1307500, total_bid_value: 1048000, bids_sent: 8 },
 ];
 
+const demoProjectWork = {
+  1: {
+    completion_pct: 62, billed_pct: 45, labor_logged: 324, labor_estimated: 520, materials_status: 'delivered',
+    notes: 'East wing install ahead of schedule. Motorized shade shipment for west wing expected May 24. Client requested minor spec change on Suite 4 — revised scope approved.',
+    phases: [
+      { name: 'Site Measurement & Scope',     pct: 100, status: 'complete', assignee: 'Alex Chen',    completed: '2026-04-15' },
+      { name: 'Material Procurement',         pct: 100, status: 'complete', assignee: 'Operations',   completed: '2026-05-02' },
+      { name: 'Install — East Wing',          pct: 100, status: 'complete', assignee: 'Mike Torres',  completed: '2026-05-14' },
+      { name: 'Install — West Wing',          pct: 35,  status: 'active',   assignee: 'Mike Torres',  completed: null },
+      { name: 'Motorization & Controls',      pct: 0,   status: 'pending',  assignee: 'TBD',          completed: null },
+      { name: 'Punch List & Client Sign-Off', pct: 0,   status: 'pending',  assignee: 'Maya Johnson', completed: null },
+    ],
+  },
+  2: {
+    completion_pct: 28, billed_pct: 20, labor_logged: 195, labor_estimated: 680, materials_status: 'partial',
+    notes: 'Floors 1–6 measurement complete. Phase 1 materials partial delivery — remaining expected June 3. Phase 2 install crew scheduling in progress.',
+    phases: [
+      { name: 'Site Measurement',             pct: 100, status: 'complete', assignee: 'Alex Chen',    completed: '2026-05-08' },
+      { name: 'Material Procurement',         pct: 60,  status: 'active',   assignee: 'Operations',   completed: null },
+      { name: 'Install — Floors 1–6',         pct: 40,  status: 'active',   assignee: 'Crew A',       completed: null },
+      { name: 'Install — Floors 7–14',        pct: 0,   status: 'pending',  assignee: 'TBD',          completed: null },
+      { name: 'Install — Penthouse Units',    pct: 0,   status: 'pending',  assignee: 'TBD',          completed: null },
+      { name: 'Motorization & Testing',       pct: 0,   status: 'pending',  assignee: 'TBD',          completed: null },
+      { name: 'Final Inspection',             pct: 0,   status: 'pending',  assignee: 'Maya Johnson', completed: null },
+    ],
+  },
+  3: {
+    completion_pct: 10, billed_pct: 8, labor_logged: 28, labor_estimated: 450, materials_status: 'not-ordered',
+    notes: 'Pre-con coordination complete. GC delayed site access to June 17. Motorized solar shades confirmed for all 210 guest rooms. Material order pending site access.',
+    phases: [
+      { name: 'Pre-Con & Coordination',       pct: 100, status: 'complete', assignee: 'Chris Walker', completed: '2026-05-12' },
+      { name: 'Site Measurement',             pct: 0,   status: 'pending',  assignee: 'Jordan Rivers',completed: null },
+      { name: 'Material Procurement',         pct: 0,   status: 'pending',  assignee: 'Operations',   completed: null },
+      { name: 'Install — Guest Rooms',        pct: 0,   status: 'pending',  assignee: 'TBD',          completed: null },
+      { name: 'Install — Common Areas',       pct: 0,   status: 'pending',  assignee: 'TBD',          completed: null },
+      { name: 'Punch List & Handoff',         pct: 0,   status: 'pending',  assignee: 'Chris Walker', completed: null },
+    ],
+  },
+  4: {
+    completion_pct: 55, billed_pct: 40, labor_logged: 210, labor_estimated: 380, materials_status: 'delivered',
+    notes: 'OR suite blackout shades complete and certified. Exam room install 80% done. Admin wing begins May 28. Infection control protocol requires off-hours work.',
+    phases: [
+      { name: 'Site Measurement',              pct: 100, status: 'complete', assignee: 'Taylor Brooks', completed: '2026-05-05' },
+      { name: 'Material Procurement',          pct: 100, status: 'complete', assignee: 'Operations',    completed: '2026-05-18' },
+      { name: 'Install — OR Suites',           pct: 100, status: 'complete', assignee: 'Crew B',        completed: '2026-05-22' },
+      { name: 'Install — Exam Rooms',          pct: 80,  status: 'active',   assignee: 'Crew B',        completed: null },
+      { name: 'Install — Admin Wing',          pct: 0,   status: 'pending',  assignee: 'Crew B',        completed: null },
+      { name: 'Punch List & Certification',    pct: 0,   status: 'pending',  assignee: 'Maya Johnson',  completed: null },
+    ],
+  },
+  5: {
+    completion_pct: 100, billed_pct: 100, labor_logged: 64, labor_estimated: 60, materials_status: 'delivered',
+    notes: 'Project closed Feb 12. All shades installed and operational. Slight labor overage due to unit access coordination with condo association.',
+    phases: [
+      { name: 'Site Measurement',             pct: 100, status: 'complete', assignee: 'Alex Chen',    completed: '2026-01-30' },
+      { name: 'Material Procurement',         pct: 100, status: 'complete', assignee: 'Operations',   completed: '2026-02-04' },
+      { name: 'Install — Unit 4B',            pct: 100, status: 'complete', assignee: 'Mike Torres',  completed: '2026-02-05' },
+      { name: 'Punch List & Client Sign-Off', pct: 100, status: 'complete', assignee: 'Maya Johnson', completed: '2026-02-12' },
+    ],
+  },
+  6: {
+    completion_pct: 5, billed_pct: 3, labor_logged: 12, labor_estimated: 800, materials_status: 'not-ordered',
+    notes: 'Kickoff July 8. GC provided Phase 1 drawings for Buildings 1–2. Estimator finalizing scope for all 6 buildings, 402 units. Long-lead motorized components need early order.',
+    phases: [
+      { name: 'Pre-Con & Planning',           pct: 100, status: 'complete', assignee: 'Morgan Lee',   completed: '2026-05-15' },
+      { name: 'Site Measurement',             pct: 0,   status: 'pending',  assignee: 'Morgan Lee',   completed: null },
+      { name: 'Material Procurement',         pct: 0,   status: 'pending',  assignee: 'Operations',   completed: null },
+      { name: 'Install — Buildings 1–2',      pct: 0,   status: 'pending',  assignee: 'TBD',          completed: null },
+      { name: 'Install — Buildings 3–4',      pct: 0,   status: 'pending',  assignee: 'TBD',          completed: null },
+      { name: 'Install — Buildings 5–6',      pct: 0,   status: 'pending',  assignee: 'TBD',          completed: null },
+      { name: 'Final Inspection & Closeout',  pct: 0,   status: 'pending',  assignee: 'Chris Walker', completed: null },
+    ],
+  },
+};
+
 const statusLabels = {
   active: 'Active',
   pending: 'Pending',
@@ -460,6 +535,7 @@ function LoginScreen({ onLogin }) {
 }
 
 function DashboardHome({ dashboard }) {
+  const [selectedProject, setSelectedProject] = useState(null);
   const summary = dashboard.summary;
   const metrics = dashboard.monthlyMetrics || demoMetrics;
   const bidData = dashboard.bidSummary?.length
@@ -485,19 +561,134 @@ function DashboardHome({ dashboard }) {
         <BarChart title="Bid Dollars Sent" subtitle="monthly estimating activity" data={bidData} valueKey="total_bid_value" />
       </section>
       <section className="content-grid">
-        <ProjectTable projects={dashboard.recentProjects || []} compact />
+        <ProjectTable projects={dashboard.recentProjects || []} compact onSelect={setSelectedProject} />
         <FinancialSide dashboard={dashboard} />
       </section>
+      {selectedProject && <ProjectDetailPanel project={selectedProject} onClose={() => setSelectedProject(null)} />}
     </>
   );
 }
 
-function ProjectTable({ projects, compact = false }) {
+function ProjectDetailPanel({ project, onClose }) {
+  const work = demoProjectWork[project.id] || { completion_pct: 0, billed_pct: 0, labor_logged: 0, labor_estimated: 0, materials_status: 'unknown', notes: '', phases: [] };
+  const contractValue = projectContractValue(project);
+  const billed    = contractValue * (work.billed_pct / 100);
+  const remaining = contractValue - billed;
+  const phaseColor = { complete: 'var(--green)', active: 'var(--brand)', pending: '#dfe5ea' };
+  const matColor   = { delivered: 'var(--green)', partial: 'var(--orange)', 'not-ordered': 'var(--muted)', unknown: 'var(--muted)' };
+  const matLabel   = { delivered: 'Delivered', partial: 'Partial Delivery', 'not-ordered': 'Not Yet Ordered', unknown: 'Unknown' };
+
+  return (
+    <div className="detail-overlay" onClick={onClose}>
+      <div className="detail-panel" style={{ width: 'min(640px, 96vw)' }} onClick={(e) => e.stopPropagation()}>
+        <div className="detail-header">
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.08em', color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 4 }}>
+              Job #{project.job_number}
+            </div>
+            <h2 style={{ margin: '0 0 6px', fontSize: 18, lineHeight: 1.3 }}>{project.project_name}</h2>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+              <span className={`badge badge-${project.status || 'unassigned'}`}>{statusLabels[project.status] || project.status}</span>
+              <span style={{ fontSize: 12, color: 'var(--muted)' }}>{project.company_name} · {getAreaName(project.territory_id, project.territory_name)}</span>
+            </div>
+          </div>
+          <button onClick={onClose} type="button" className="close-btn">✕</button>
+        </div>
+
+        <div style={{ padding: '14px 24px', borderBottom: '1px solid var(--line)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
+            <span style={{ color: 'var(--muted)' }}>Overall Completion</span>
+            <span style={{ color: work.completion_pct === 100 ? 'var(--green)' : 'var(--brand)' }}>{work.completion_pct}%</span>
+          </div>
+          <div style={{ height: 10, borderRadius: 999, background: '#e8edf0', overflow: 'hidden' }}>
+            <div style={{ height: '100%', borderRadius: 'inherit', background: work.completion_pct === 100 ? 'var(--green)' : 'var(--brand)', width: `${work.completion_pct}%` }} />
+          </div>
+        </div>
+
+        <div className="detail-stats">
+          <div className="stat"><span>Contract</span><strong>{currency(contractValue)}</strong><small>Total value</small></div>
+          <div className="stat"><span>Billed</span><strong style={{ color: 'var(--green)' }}>{currency(billed)}</strong><small>{work.billed_pct}% invoiced</small></div>
+          <div className="stat"><span>Remaining</span><strong style={{ color: remaining > 0 ? 'var(--orange)' : 'var(--muted)' }}>{currency(remaining)}</strong><small>To be billed</small></div>
+        </div>
+        <div className="detail-stats" style={{ borderTop: '1px solid var(--line)' }}>
+          <div className="stat"><span>Labor Logged</span><strong>{work.labor_logged}h</strong><small>of {work.labor_estimated}h est.</small></div>
+          <div className="stat"><span>Materials</span><strong style={{ color: matColor[work.materials_status] }}>{matLabel[work.materials_status]}</strong><small>Delivery status</small></div>
+          <div className="stat"><span>Install Start</span><strong>{shortDate(project.install_start_date)}</strong><small>Scheduled</small></div>
+        </div>
+
+        <div className="detail-body">
+          <div className="detail-section-label">Work Phases</div>
+          <div style={{ display: 'grid', gap: 12, marginBottom: 20 }}>
+            {work.phases.map((phase, i) => (
+              <div key={i}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 5 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: phaseColor[phase.status] || '#ccc', flexShrink: 0 }} />
+                    <span style={{ fontWeight: phase.status === 'active' ? 700 : 500 }}>{phase.name}</span>
+                    {phase.status === 'active' && (
+                      <span style={{ fontSize: 10, fontWeight: 800, background: 'var(--brand)', color: '#fff', padding: '1px 6px', borderRadius: 10, letterSpacing: '.04em' }}>IN PROGRESS</span>
+                    )}
+                  </div>
+                  <span style={{ color: phase.status === 'complete' ? 'var(--green)' : phase.pct > 0 ? 'var(--brand)' : 'var(--muted)', fontWeight: 700, flexShrink: 0 }}>
+                    {phase.status === 'complete' ? '✓ Done' : phase.pct > 0 ? `${phase.pct}%` : 'Not started'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                  <div style={{ flex: 1, height: 5, borderRadius: 999, background: '#e8edf0', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', borderRadius: 'inherit', background: phaseColor[phase.status] || '#ccc', width: `${phase.pct}%` }} />
+                  </div>
+                  <span style={{ fontSize: 11, color: 'var(--muted)', minWidth: 110, textAlign: 'right' }}>
+                    {phase.status === 'complete' ? shortDate(phase.completed) : phase.assignee}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="detail-section-label">Project Details</div>
+          <div style={{ marginBottom: 16 }}>
+            {[
+              ['Project Manager', project.project_manager_name || '—'],
+              ['Install Window',  `${shortDate(project.install_start_date)} – ${shortDate(project.install_end_date)}`],
+              ['Territory',       getAreaName(project.territory_id, project.territory_name)],
+              ['Client',          project.company_name || '—'],
+              ...(project.completion_date ? [['Completed', shortDate(project.completion_date)]] : []),
+            ].map(([label, value]) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '8px 0', borderBottom: '1px solid var(--line)' }}>
+                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
+                <strong>{value}</strong>
+              </div>
+            ))}
+          </div>
+
+          {work.notes && (
+            <>
+              <div className="detail-section-label">Field Notes</div>
+              <div style={{ fontSize: 13, lineHeight: 1.65, background: 'var(--bg)', padding: '12px 14px', borderRadius: 8 }}>{work.notes}</div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProjectsView({ projects }) {
+  const [selected, setSelected] = useState(null);
+  return (
+    <>
+      <ProjectTable projects={projects} onSelect={setSelected} />
+      {selected && <ProjectDetailPanel project={selected} onClose={() => setSelected(null)} />}
+    </>
+  );
+}
+
+function ProjectTable({ projects, compact = false, onSelect }) {
   return (
     <section className="panel table-panel">
       <div className="panel-head">
         <h2>{compact ? 'Current Projects' : 'All Projects'}</h2>
-        <span>{projects.length} shown</span>
+        <span>{onSelect ? 'Click a row to view details' : `${projects.length} shown`}</span>
       </div>
       <table>
         <thead>
@@ -512,7 +703,7 @@ function ProjectTable({ projects, compact = false }) {
         </thead>
         <tbody>
           {projects.map((project) => (
-            <tr key={project.id}>
+            <tr key={project.id} className={onSelect ? 'hoverable-row' : ''} onClick={onSelect ? () => onSelect(project) : undefined}>
               <td>{project.job_number || '-'}</td>
               <td><strong>{project.project_name}</strong><small>{project.company_name || project.project_manager_name || 'No company assigned'}</small></td>
               <td>{getAreaName(project.territory_id, project.territory_name)}</td>
@@ -1342,7 +1533,7 @@ function ProjectManagerDashboard({ user }) {
         </header>
 
         {activeView === 'dashboard'  && <DashboardHome   key={areaId} dashboard={dashboard} />}
-        {activeView === 'projects'   && <ProjectTable    key={areaId} projects={dashboard.projects || []} />}
+        {activeView === 'projects'   && <ProjectsView    key={areaId} projects={dashboard.projects || []} />}
         {activeView === 'scheduling' && <CalendarView    key={areaId} projects={dashboard.projects || []} />}
         {activeView === 'installers' && <InstallersView  key={areaId} installers={filteredInstallers} />}
         {activeView === 'kpis'       && <KPIView         key={areaId} dashboard={dashboard} />}
@@ -2465,7 +2656,7 @@ function ChiefEstimatorDashboard({ user }) {
 
   const navGroups = [
     { label: 'OVERVIEW',  items: [['dashboard', 'Dashboard'], ['performance', 'Performance Board']] },
-    { label: 'PIPELINE',  items: [['opportunities', 'All Opportunities'], ['bids', 'Bids & Quotes']] },
+    { label: 'PIPELINE',  items: [['opportunities', 'All Opportunities'], ['bids', 'Bids & Quotes'], ['projects', 'Projects']] },
     { label: 'ANALYTICS', items: [['lift', 'Lift & Capture'], ['financials', 'Financials'], ['reports', 'Reports']] },
     { label: null,        items: [['schedule', 'Schedule']] },
   ];
@@ -2520,6 +2711,7 @@ function ChiefEstimatorDashboard({ user }) {
         {activeView === 'performance'   && <ChiefPerformanceBoard key="perf"  onSelectEstimator={setSelectedEst} />}
         {activeView === 'opportunities' && <ChiefAllOpportunities key="opps"  onSelectEstimator={setSelectedEst} />}
         {activeView === 'bids'          && <ChiefBidsQuotes       key="bids" />}
+        {activeView === 'projects'      && <ProjectsView          key="proj" projects={demoProjects} />}
         {activeView === 'lift'          && <ChiefLiftCapture      key="lift" />}
         {activeView === 'financials'    && <ChiefFinancials       key="fin" />}
         {activeView === 'reports'       && <PlaceholderView title="Reports"   icon="📊" description="Team-wide estimate summary, win/loss analysis, and territory breakdowns coming soon." />}
