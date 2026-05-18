@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(node --check \"c:/Users/jensa/Web-app-mission-control-/backend/app.js\")",
+      "Bash(node --check \"c:/Users/jensa/Web-app-mission-control-/backend/models/analyticsModel.js\")",
+      "Bash(node --check \"c:/Users/jensa/Web-app-mission-control-/backend/models/financeModel.js\")",
+      "Bash(node --check \"c:/Users/jensa/Web-app-mission-control-/backend/database/seed.js\")"
+    ]
+  }
+}
