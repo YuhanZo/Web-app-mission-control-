@@ -3,8 +3,11 @@ const express = require('express');
 const cors = require('cors');
 const session = require('express-session');
 
-const authRoutes      = require('./routes/authRoutes');
-const dashboardRoutes = require('./routes/dashboardRoutes');
+const authRoutes        = require('./routes/authRoutes');
+const dashboardRoutes   = require('./routes/dashboardRoutes');
+const subprojectRoutes  = require('./routes/subprojectRoutes');
+const installerRoutes   = require('./routes/installerRoutes');
+const materialRoutes    = require('./routes/materialRoutes');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -30,6 +33,9 @@ app.use(session({
 // API routes
 app.use('/api/auth',      authRoutes);
 app.use('/api',           dashboardRoutes);
+app.use('/api',           subprojectRoutes);
+app.use('/api',           installerRoutes);
+app.use('/api',           materialRoutes);
 
 // TODO: mount as modules are built
 // app.use('/api/projects',  projectRoutes);
