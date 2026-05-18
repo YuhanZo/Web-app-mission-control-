@@ -118,26 +118,93 @@ function StatCard({ label, value, note }) {
 }
 
 function BarChart({ title, subtitle, data, valueKey, projectedKey }) {
-  const max = Math.max(...data.flatMap((item) => [Number(item[valueKey] || 0), Number(item[projectedKey] || 0)]), 1);
+  const W = 620; const H = 240;
+  const pad = { top: 20, right: 20, bottom: 36, left: 62 };
+  const pw = W - pad.left - pad.right;
+  const ph = H - pad.top - pad.bottom;
+  const allV = data.flatMap((d) => [Number(d[valueKey] || 0), projectedKey ? Number(d[projectedKey] || 0) : 0]);
+  const maxV = Math.max(...allV, 1);
+  const xi   = (i) => pad.left + (i / Math.max(data.length - 1, 1)) * pw;
+  const yi   = (v) => pad.top  + (1 - Number(v) / maxV) * ph;
+  const mkPath = (key) => data.reduce((p, d, i) => {
+    const pt = `${xi(i).toFixed(1)} ${yi(Number(d[key] || 0)).toFixed(1)}`;
+    return p ? `${p} L ${pt}` : `M ${pt}`;
+  }, '');
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map((r) => maxV * r);
+
   return (
     <section className="panel chart-panel">
-      <div className="panel-head">
-        <h2>{title}</h2>
-        <span>{subtitle}</span>
-      </div>
-      <div className="bar-chart">
-        {data.map((item) => (
-          <div className="bar-column" key={`${title}-${item.metric_month || item.bid_month}`}>
-            <div className="bar-stack">
-              {projectedKey && <span className="bar projected" style={{ height: `${(Number(item[projectedKey] || 0) / max) * 100}%` }} title={`Projected ${currency(item[projectedKey])}`} />}
-              <span className="bar actual" style={{ height: `${(Number(item[valueKey] || 0) / max) * 100}%` }} title={currency(item[valueKey])} />
-            </div>
-            <strong>{monthLabel(item.metric_month || item.bid_month)}</strong>
-            <small>{currency(item[valueKey])}</small>
-          </div>
+      <div className="panel-head"><h2>{title}</h2><span>{subtitle}</span></div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block' }}>
+        {ticks.map((tick) => (
+          <g key={tick}>
+            <line x1={pad.left} x2={W - pad.right} y1={yi(tick)} y2={yi(tick)} className="grid-line" />
+            <text x={pad.left - 8} y={yi(tick) + 4} textAnchor="end" className="axis-label">{compactMoney(tick)}</text>
+          </g>
         ))}
-      </div>
+        {data.map((d, i) => (
+          <text key={i} x={xi(i)} y={H - 8} textAnchor="middle" className="axis-label">
+            {monthLabel(d.metric_month || d.bid_month || '')}
+          </text>
+        ))}
+        {projectedKey && (
+          <path d={mkPath(projectedKey)} fill="none" stroke="var(--gold)" strokeWidth="2.5" strokeDasharray="6 4" opacity=".8" />
+        )}
+        <path d={mkPath(valueKey)} fill="none" stroke="var(--brand)" strokeWidth="3" className="animated-line" />
+        {projectedKey && data.map((d, i) => (
+          <circle key={i} cx={xi(i)} cy={yi(Number(d[projectedKey] || 0))} r="4" fill="var(--gold)"
+            className="animated-dot" style={{ animationDelay: `${0.9 + i * 0.07}s` }} />
+        ))}
+        {data.map((d, i) => (
+          <circle key={i} cx={xi(i)} cy={yi(Number(d[valueKey] || 0))} r="5" fill="var(--brand)"
+            className="animated-dot" style={{ animationDelay: `${0.7 + i * 0.07}s` }} />
+        ))}
+      </svg>
+      {projectedKey && (
+        <div className="chart-legend">
+          <span><i style={{ background: 'var(--brand)' }} />Actual</span>
+          <span><i style={{ background: 'var(--gold)', opacity: .8 }} />Projected</span>
+        </div>
+      )}
     </section>
+  );
+}
+
+function MiniLineChart({ data, seriesKeys, seriesColors, height = 160 }) {
+  const W = 500; const H = height;
+  const pad = { top: 10, right: 12, bottom: 24, left: 12 };
+  const pw = W - pad.left - pad.right;
+  const ph = H - pad.top - pad.bottom;
+  const allV  = data.flatMap((d) => seriesKeys.map((k) => Number(d[k] || 0)));
+  const maxV  = Math.max(...allV, 1);
+  const xi    = (i) => pad.left + (i / Math.max(data.length - 1, 1)) * pw;
+  const yi    = (v) => pad.top  + (1 - v / maxV) * ph;
+  const mkPath = (key) => data.reduce((p, d, i) => {
+    const pt = `${xi(i).toFixed(1)} ${yi(Number(d[key] || 0)).toFixed(1)}`;
+    return p ? `${p} L ${pt}` : `M ${pt}`;
+  }, '');
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: 'block', padding: '8px 18px 0' }}>
+      {[0.25, 0.5, 0.75, 1].map((r) => (
+        <line key={r} x1={pad.left} x2={W - pad.right} y1={yi(maxV * r)} y2={yi(maxV * r)} stroke="#e8edf0" strokeWidth="1" />
+      ))}
+      {data.map((d, i) => (
+        <text key={i} x={xi(i)} y={H - 2} textAnchor="middle" fill="#6f7a84" fontSize="12">
+          {monthLabel(d.month || d.metric_month || '')}
+        </text>
+      ))}
+      {seriesKeys.map((key, ki) => (
+        <g key={key}>
+          <path d={mkPath(key)} fill="none" stroke={seriesColors[ki]} strokeWidth="2.5"
+            className="animated-line" style={{ animationDelay: `${ki * 0.2}s` }} />
+          {data.map((d, i) => (
+            <circle key={i} cx={xi(i)} cy={yi(Number(d[key] || 0))} r="4" fill={seriesColors[ki]}
+              className="animated-dot" style={{ animationDelay: `${0.7 + ki * 0.2 + i * 0.07}s` }} />
+          ))}
+        </g>
+      ))}
+    </svg>
   );
 }
 
@@ -295,11 +362,15 @@ function LineChart({ model }) {
             <text x={x(index)} y={height - 18} textAnchor="middle" className="axis-label">{label}</text>
           </g>
         ))}
-        {series.map((item) => (
-          <path key={item.key} d={pathFor(model.chart[item.key])} fill="none" stroke={item.color} strokeWidth="3" strokeDasharray={item.dashed ? '8 7' : '0'} />
+        {series.map((item, si) => (
+          <path key={item.key} d={pathFor(model.chart[item.key])} fill="none" stroke={item.color} strokeWidth="3"
+            strokeDasharray={item.dashed ? '8 7' : undefined}
+            className={item.dashed ? undefined : 'animated-line'}
+            style={item.dashed ? undefined : { animationDelay: `${si * 0.18}s` }} />
         ))}
-        {series.slice(0, 4).flatMap((item) => model.chart[item.key].map((value, index) => value === null || value === undefined ? null : (
-          <circle key={`${item.key}-${index}`} cx={x(index)} cy={y(value)} r="5" fill={item.color} />
+        {series.slice(0, 4).flatMap((item, si) => model.chart[item.key].map((value, index) => value === null || value === undefined ? null : (
+          <circle key={`${item.key}-${index}`} cx={x(index)} cy={y(value)} r="5" fill={item.color}
+            className="animated-dot" style={{ animationDelay: `${0.9 + si * 0.18 + index * 0.05}s` }} />
         )))}
       </svg>
       <div className="chart-legend">
@@ -347,8 +418,9 @@ function LoginScreen({ onLogin }) {
       if (!response.ok) throw new Error(body.error || 'Unable to log in.');
       onLogin(body.user);
     } catch (err) {
-      setError(`${err.message} Showing demo dashboard data.`);
-      onLogin({ id: 'demo', name: 'Project Manager', email, role: 'project_manager', territoryId: 1, demo: true });
+      const isEst = /\.est[@.]|estimat/i.test(email);
+      setError(`${err.message} Showing demo data.`);
+      onLogin({ id: 'demo', name: isEst ? 'Alex Chen' : 'Maya Johnson', email, role: isEst ? 'estimator' : 'project_manager', territoryId: 1, demo: true });
     } finally {
       setLoading(false);
     }
@@ -364,7 +436,13 @@ function LoginScreen({ onLogin }) {
       <form className="login-panel" onSubmit={submit}>
         <p>Secure sign in</p>
         <h2>Open your dashboard</h2>
-        <label>Email<input value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+        <label>
+          Email
+          <input value={email} onChange={(event) => setEmail(event.target.value)} />
+          <small style={{ color: 'var(--muted)', fontWeight: 400, marginTop: 4, display: 'block' }}>
+            Demo: <code>maya.pm@jamesblinds.com</code> · PM &nbsp;|&nbsp; <code>alex.est@jamesblinds.com</code> · Estimator
+          </small>
+        </label>
         <label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
         {error && <div className="error">{error}</div>}
         <button disabled={loading} type="submit">{loading ? 'Signing in...' : 'Log in'}</button>
@@ -625,6 +703,95 @@ const demoCustomers = [
   { id: 5, company_name: 'Triad Multifamily Group',        territory_name: 'Triad',           company_type: 'Developer',          contact_name: 'Ryan Cooper',    contact_title: 'Project Executive',    phone: '336-555-0210', active_projects: 1, total_value: 402500, last_interaction: '2026-04-18', interaction_type: 'Contract Review' },
   { id: 6, company_name: 'SouthPark Capital Partners',     territory_name: 'Charlotte Metro', company_type: 'Developer',          contact_name: 'Marcus Finley',  contact_title: 'VP of Construction',   phone: '704-555-0205', active_projects: 1, total_value: 145000, last_interaction: '2026-05-08', interaction_type: 'Kickoff Meeting' },
   { id: 7, company_name: 'Huntersville Residential',       territory_name: 'Lake Norman',     company_type: 'Developer',          contact_name: 'Tyler Drummond', contact_title: 'Construction Manager', phone: '704-555-0207', active_projects: 1, total_value: 412000, last_interaction: '2026-05-01', interaction_type: 'Site Walk'       },
+];
+
+// ─── Estimator demo data ───────────────────────────────────────────────────
+
+const demoOpportunities = [
+  { id:  1, lead_name: 'Ballantyne Corporate Park Ph.3', company: 'SouthPark Capital Partners',     territory_name: 'Charlotte Metro', stage: 'won',        value: 218000, margin_pct: 0.34, estimator: 'Alex Chen', created_date: '2026-03-12', quote_date: '2026-03-22', decision_date: '2026-04-08' },
+  { id:  2, lead_name: 'South End Retail Shell Shades',  company: 'Brookline Builders',             territory_name: 'Charlotte Metro', stage: 'quoted',     value:  96500, margin_pct: 0.35, estimator: 'Alex Chen', created_date: '2026-04-28', quote_date: '2026-05-04', decision_date: null         },
+  { id:  3, lead_name: 'Crescent North Phase 2',         company: 'Crescent Property Group',        territory_name: 'Charlotte Metro', stage: 'won',        value: 288000, margin_pct: 0.35, estimator: 'Alex Chen', created_date: '2026-04-01', quote_date: '2026-04-10', decision_date: '2026-04-22' },
+  { id:  4, lead_name: 'South End Luxury Condos Ph.1',   company: 'Brookline Builders',             territory_name: 'Charlotte Metro', stage: 'quoted',     value: 208000, margin_pct: 0.35, estimator: 'Alex Chen', created_date: '2026-03-25', quote_date: '2026-04-08', decision_date: null         },
+  { id:  5, lead_name: 'NoDa Mixed-Use Tower',           company: 'Uptown Development LLC',         territory_name: 'Charlotte Metro', stage: 'site-visit', value: 340000, margin_pct: 0.33, estimator: 'Alex Chen', created_date: '2026-05-07', quote_date: null,         decision_date: null         },
+  { id:  6, lead_name: 'Midtown Office Renovation',      company: 'SouthPark Capital Partners',     territory_name: 'Charlotte Metro', stage: 'lead',       value: 122000, margin_pct: 0.32, estimator: 'Alex Chen', created_date: '2026-05-13', quote_date: null,         decision_date: null         },
+  { id:  7, lead_name: 'University Research Center',     company: 'Charlotte Univ. Facilities',     territory_name: 'Charlotte Metro', stage: 'lead',       value: 195000, margin_pct: 0.31, estimator: 'Alex Chen', created_date: '2026-05-15', quote_date: null,         decision_date: null         },
+  { id:  8, lead_name: 'Dilworth Townhome Row',          company: 'Brookline Builders',             territory_name: 'Charlotte Metro', stage: 'lost',       value:  87000, margin_pct: 0.34, estimator: 'Alex Chen', created_date: '2026-03-05', quote_date: '2026-03-18', decision_date: '2026-04-01' },
+  { id:  9, lead_name: 'Plaza Midwood Apartments',       company: 'Crescent Property Group',        territory_name: 'Charlotte Metro', stage: 'site-visit', value: 175000, margin_pct: 0.33, estimator: 'Alex Chen', created_date: '2026-05-10', quote_date: null,         decision_date: null         },
+  { id: 10, lead_name: 'Steele Creek Business Park',     company: 'SouthPark Capital Partners',     territory_name: 'Charlotte Metro', stage: 'lost',       value: 132000, margin_pct: 0.35, estimator: 'Alex Chen', created_date: '2026-02-18', quote_date: '2026-03-02', decision_date: '2026-03-20' },
+  { id: 11, lead_name: 'Dilworth Senior Living Ph.2',    company: 'Brookline Builders',             territory_name: 'Charlotte Metro', stage: 'lead',       value: 280000, margin_pct: 0.33, estimator: 'Alex Chen', created_date: '2026-05-16', quote_date: null,         decision_date: null         },
+  { id: 12, lead_name: 'Uptown Hospitality Suite',       company: 'Uptown Development LLC',         territory_name: 'Charlotte Metro', stage: 'site-visit', value: 165000, margin_pct: 0.34, estimator: 'Alex Chen', created_date: '2026-05-09', quote_date: null,         decision_date: null         },
+];
+
+const demoEstimates = [
+  { id: 1, project_name: 'South End Retail Shell Shades',  company: 'Brookline Builders',         territory_name: 'Charlotte Metro', status: 'awaiting-approval', bid_amount:  96500, margin_pct: 0.35, estimator: 'Alex Chen', created_date: '2026-04-28', due_date: '2026-05-18', revisions: 1, priority: 'normal' },
+  { id: 2, project_name: 'South End Luxury Condos Ph.1',   company: 'Brookline Builders',         territory_name: 'Charlotte Metro', status: 'revision',          bid_amount: 208000, margin_pct: 0.35, estimator: 'Alex Chen', created_date: '2026-03-25', due_date: '2026-05-20', revisions: 2, priority: 'high'   },
+  { id: 3, project_name: 'NoDa Mixed-Use Tower',           company: 'Uptown Development LLC',     territory_name: 'Charlotte Metro', status: 'draft',             bid_amount: 340000, margin_pct: 0.33, estimator: 'Alex Chen', created_date: '2026-05-07', due_date: '2026-05-28', revisions: 0, priority: 'high'   },
+  { id: 4, project_name: 'Plaza Midwood Apartments',       company: 'Crescent Property Group',    territory_name: 'Charlotte Metro', status: 'pending',           bid_amount: 175000, margin_pct: 0.33, estimator: 'Alex Chen', created_date: '2026-05-10', due_date: '2026-05-25', revisions: 0, priority: 'normal' },
+  { id: 5, project_name: 'University Research Center',     company: 'Charlotte Univ. Facilities', territory_name: 'Charlotte Metro', status: 'draft',             bid_amount: 195000, margin_pct: 0.31, estimator: 'Alex Chen', created_date: '2026-05-15', due_date: '2026-06-01', revisions: 0, priority: 'normal' },
+  { id: 6, project_name: 'Midtown Office Renovation',      company: 'SouthPark Capital Partners', territory_name: 'Charlotte Metro', status: 'pending',           bid_amount: 122000, margin_pct: 0.32, estimator: 'Alex Chen', created_date: '2026-05-13', due_date: '2026-05-30', revisions: 0, priority: 'normal' },
+  { id: 7, project_name: 'Uptown Hospitality Suite',       company: 'Uptown Development LLC',     territory_name: 'Charlotte Metro', status: 'pending',           bid_amount: 165000, margin_pct: 0.34, estimator: 'Alex Chen', created_date: '2026-05-09', due_date: '2026-06-05', revisions: 1, priority: 'normal' },
+];
+
+const demoEstimatorMonthly = [
+  { month: '2026-01-01', quotes_sent: 6, quotes_won: 3, win_rate: 0.500, total_bid_value:  890000, captured_value: 412000, avg_margin: 0.335, avg_quote_size: 148333, avg_turnaround_days: 9.2 },
+  { month: '2026-02-01', quotes_sent: 7, quotes_won: 4, win_rate: 0.571, total_bid_value: 1050000, captured_value: 618000, avg_margin: 0.342, avg_quote_size: 150000, avg_turnaround_days: 8.0 },
+  { month: '2026-03-01', quotes_sent: 8, quotes_won: 3, win_rate: 0.375, total_bid_value: 1240000, captured_value: 487000, avg_margin: 0.338, avg_quote_size: 155000, avg_turnaround_days: 7.4 },
+  { month: '2026-04-01', quotes_sent: 9, quotes_won: 5, win_rate: 0.556, total_bid_value: 1480000, captured_value: 822000, avg_margin: 0.347, avg_quote_size: 164444, avg_turnaround_days: 6.5 },
+  { month: '2026-05-01', quotes_sent: 5, quotes_won: 2, win_rate: 0.400, total_bid_value:  690000, captured_value: 306000, avg_margin: 0.344, avg_quote_size: 138000, avg_turnaround_days: 6.1 },
+];
+
+const demoSiteVisits = [
+  { id: 1, project_name: 'NoDa Mixed-Use Tower',         company: 'Uptown Development LLC',         territory_name: 'Charlotte Metro', visit_date: '2026-05-19', visit_time: '9:00 AM',  type: 'initial',     estimator: 'Alex Chen', status: 'confirmed', notes: '24-story tower, 340 units, exterior roller shades + amenity blackout' },
+  { id: 2, project_name: 'South End Luxury Condos Ph.1', company: 'Brookline Builders',             territory_name: 'Charlotte Metro', visit_date: '2026-05-21', visit_time: '3:30 PM',  type: 'remeasure',   estimator: 'Alex Chen', status: 'confirmed', notes: 'Units 201–240 layout change, client revised floor plans' },
+  { id: 3, project_name: 'Plaza Midwood Apartments',     company: 'Crescent Property Group',        territory_name: 'Charlotte Metro', visit_date: '2026-05-22', visit_time: '10:00 AM', type: 'remeasure',   estimator: 'Alex Chen', status: 'confirmed', notes: 'Spec change from roller to cellular in studio units' },
+  { id: 4, project_name: 'University Research Center',   company: 'Charlotte Univ. Facilities',     territory_name: 'Charlotte Metro', visit_date: '2026-05-22', visit_time: '2:00 PM',  type: 'walkthrough', estimator: 'Alex Chen', status: 'confirmed', notes: 'Phase 2 labs and offices, full blackout required in research spaces' },
+  { id: 5, project_name: 'Midtown Office Renovation',    company: 'SouthPark Capital Partners',     territory_name: 'Charlotte Metro', visit_date: '2026-05-27', visit_time: '1:00 PM',  type: 'initial',     estimator: 'Alex Chen', status: 'tentative', notes: '4-floor plate renovation, solar shades and motorized preferred' },
+  { id: 6, project_name: 'Uptown Hospitality Suite',     company: 'Uptown Development LLC',         territory_name: 'Charlotte Metro', visit_date: '2026-05-28', visit_time: '11:30 AM', type: 'walkthrough', estimator: 'Alex Chen', status: 'tentative', notes: 'Boutique hotel common areas and 60 guest rooms' },
+  { id: 7, project_name: 'Dilworth Senior Living Ph.2',  company: 'Brookline Builders',             territory_name: 'Charlotte Metro', visit_date: '2026-06-02', visit_time: '9:30 AM',  type: 'initial',     estimator: 'Alex Chen', status: 'tentative', notes: '180-unit senior community, light-filtering throughout' },
+];
+
+const demoScopeItems = [
+  {
+    id: 1, project_name: 'South End Retail Shell Shades', company: 'Brookline Builders', territory_name: 'Charlotte Metro',
+    window_count: 48, total_sqft: 3840, labor_hrs: 192, complexity: 'medium',
+    product_mix: [{ type: 'Solar Roller Shade', count: 20, pct: 0.42 }, { type: 'Roller Shade (Blackout)', count: 28, pct: 0.58 }],
+    rooms: [
+      { name: 'Retail Floor A',  windows: 18, width_avg: 96, height_avg: 96, product: 'Solar Roller Shade'      },
+      { name: 'Retail Floor B',  windows: 12, width_avg: 72, height_avg: 96, product: 'Solar Roller Shade'      },
+      { name: 'Office Suite 1',  windows: 10, width_avg: 48, height_avg: 72, product: 'Roller Shade (Blackout)' },
+      { name: 'Office Suite 2',  windows:  8, width_avg: 48, height_avg: 72, product: 'Roller Shade (Blackout)' },
+    ],
+  },
+  {
+    id: 2, project_name: 'NoDa Mixed-Use Tower', company: 'Uptown Development LLC', territory_name: 'Charlotte Metro',
+    window_count: 340, total_sqft: 27200, labor_hrs: 1360, complexity: 'high',
+    product_mix: [{ type: 'Motorized Roller Shade', count: 200, pct: 0.59 }, { type: 'Cellular Shade (Blackout)', count: 140, pct: 0.41 }],
+    rooms: [
+      { name: 'Residential (1BR)', windows: 120, width_avg: 60, height_avg: 84, product: 'Motorized Roller Shade'    },
+      { name: 'Residential (2BR)', windows: 140, width_avg: 72, height_avg: 84, product: 'Motorized Roller Shade'    },
+      { name: 'Studio Units',      windows:  80, width_avg: 48, height_avg: 72, product: 'Cellular Shade (Blackout)' },
+    ],
+  },
+  {
+    id: 3, project_name: 'Crescent North Phase 2', company: 'Crescent Property Group', territory_name: 'Charlotte Metro',
+    window_count: 220, total_sqft: 17600, labor_hrs: 880, complexity: 'high',
+    product_mix: [{ type: 'Motorized Cellular Shade', count: 150, pct: 0.68 }, { type: 'Solar Roller Shade', count: 70, pct: 0.32 }],
+    rooms: [
+      { name: 'Tower A Residential',  windows:  90, width_avg:  60, height_avg:  96, product: 'Motorized Cellular Shade' },
+      { name: 'Tower B Residential',  windows:  80, width_avg:  60, height_avg:  96, product: 'Motorized Cellular Shade' },
+      { name: 'Common Areas / Lobby', windows:  50, width_avg: 120, height_avg: 120, product: 'Solar Roller Shade'       },
+    ],
+  },
+  {
+    id: 4, project_name: 'South End Luxury Condos Ph.1', company: 'Brookline Builders', territory_name: 'Charlotte Metro',
+    window_count: 168, total_sqft: 13440, labor_hrs: 672, complexity: 'medium',
+    product_mix: [{ type: 'Motorized Roller Shade', count: 108, pct: 0.64 }, { type: 'Blackout Liner Shade', count: 60, pct: 0.36 }],
+    rooms: [
+      { name: 'Units 101–160 (1BR)', windows:  80, width_avg: 54, height_avg: 84, product: 'Motorized Roller Shade' },
+      { name: 'Units 201–240 (2BR)', windows:  88, width_avg: 60, height_avg: 84, product: 'Motorized Roller Shade' },
+      { name: 'Master Bedrooms',     windows:  60, width_avg: 48, height_avg: 72, product: 'Blackout Liner Shade'   },
+    ],
+  },
 ];
 
 // ─── Shared PM helpers ─────────────────────────────────────────────────────
@@ -1098,9 +1265,628 @@ function ProjectManagerDashboard({ user }) {
   );
 }
 
+// ─── Estimator Views ───────────────────────────────────────────────────────
+
+function EstDashboardHome({ opportunities, estimates, metrics }) {
+  const won       = opportunities.filter((o) => o.stage === 'won');
+  const open      = opportunities.filter((o) => !['won', 'lost'].includes(o.stage));
+  const totalQuoted = opportunities.filter((o) => ['quoted', 'won', 'lost'].includes(o.stage)).length;
+  const winRate   = totalQuoted ? won.length / totalQuoted : 0;
+  const avgMargin = metrics.reduce((s, m) => s + m.avg_margin, 0) / metrics.length;
+  const stages    = ['lead', 'site-visit', 'quoted', 'won', 'lost'];
+  const stageLabels = { lead: 'Leads', 'site-visit': 'Site Visits', quoted: 'Quotes', won: 'Won', lost: 'Lost' };
+  const stageBg   = ['#687381', '#3478b8', '#d99b2b', '#2f8f5b', '#b84a4a'];
+  const maxBid    = Math.max(...metrics.map((m) => m.total_bid_value), 1);
+
+  return (
+    <>
+      <section className="stats-grid">
+        <StatCard label="Open Pipeline"    value={compactMoney(open.reduce((s, o) => s + o.value, 0))}  note={`${open.length} active opportunities`} />
+        <StatCard label="Revenue Captured" value={compactMoney(won.reduce((s, o) => s + o.value, 0))}   note={`${won.length} deals won`} />
+        <StatCard label="Bid-to-Win Rate"  value={formatRatio(winRate)}                                  note="Quoted to won conversion" />
+        <StatCard label="Avg Gross Margin" value={formatRatio(avgMargin)}                                note="YTD across all quotes" />
+      </section>
+      <section className="panel" style={{ marginBottom: 18 }}>
+        <div className="panel-head"><h2>Pipeline Funnel</h2><span>{opportunities.length} total opportunities</span></div>
+        <div style={{ display: 'flex', gap: 8, padding: '20px 24px' }}>
+          {stages.map((s, i) => {
+            const grp = opportunities.filter((o) => o.stage === s);
+            return (
+              <div key={s} style={{ flex: 1, textAlign: 'center', padding: '14px 8px', borderRadius: 8, background: stageBg[i], color: '#fff' }}>
+                <div style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{grp.length}</div>
+                <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', marginTop: 5, opacity: .9 }}>{stageLabels[s]}</div>
+                <div style={{ fontSize: 12, marginTop: 5, opacity: .8 }}>{compactMoney(grp.reduce((sum, o) => sum + o.value, 0))}</div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+        <section className="panel">
+          <div className="panel-head"><h2>Attention Needed</h2><span>Revisions &amp; approvals</span></div>
+          <table>
+            <thead><tr><th>Project</th><th>Status</th><th>Due</th><th>Value</th></tr></thead>
+            <tbody>
+              {estimates.filter((e) => ['revision', 'awaiting-approval'].includes(e.status)).map((e) => (
+                <tr key={e.id}>
+                  <td><strong style={{ fontSize: 13 }}>{e.project_name}</strong><small>{e.company}</small></td>
+                  <td><span className={`badge badge-${e.status === 'revision' ? 'pending' : 'active'}`}>{e.status === 'awaiting-approval' ? 'Awaiting Approval' : 'Revision'}</span></td>
+                  <td>{shortDate(e.due_date)}</td>
+                  <td>{currency(e.bid_amount)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Monthly Capture</h2><span>Bid sent vs won</span></div>
+          <MiniLineChart data={metrics} seriesKeys={['total_bid_value', 'captured_value']} seriesColors={['var(--gold)', 'var(--brand)']} />
+          <div className="chart-legend" style={{ padding: '0 18px 14px' }}>
+            <span><i style={{ background: 'var(--gold)' }} />Bid Sent</span>
+            <span><i style={{ background: 'var(--brand)' }} />Captured</span>
+          </div>
+        </section>
+      </div>
+      <section className="panel">
+        <div className="panel-head"><h2>Recent Wins</h2><span>Closed opportunities</span></div>
+        <table>
+          <thead><tr><th>Project</th><th>Client</th><th>Value</th><th>Margin</th><th>Closed</th></tr></thead>
+          <tbody>
+            {[...won].sort((a, b) => (b.decision_date || '').localeCompare(a.decision_date || '')).map((o) => (
+              <tr key={o.id}>
+                <td><strong>{o.lead_name}</strong></td>
+                <td>{o.company}</td>
+                <td><strong>{currency(o.value)}</strong></td>
+                <td style={{ color: 'var(--green)', fontWeight: 700 }}>{formatRatio(o.margin_pct)}</td>
+                <td>{shortDate(o.decision_date)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+function EstPipelineView({ opportunities }) {
+  const stages     = ['lead', 'site-visit', 'quoted', 'won', 'lost'];
+  const stageLabel = { lead: 'Leads', 'site-visit': 'Site Visits', quoted: 'Quotes Sent', won: 'Won', lost: 'Lost' };
+  const stageColor = { lead: '#687381', 'site-visit': '#3478b8', quoted: '#d99b2b', won: '#2f8f5b', lost: '#b84a4a' };
+  const byStage    = Object.fromEntries(stages.map((s) => [s, opportunities.filter((o) => o.stage === s)]));
+  const wonCount   = byStage.won.length;
+  const quotedAll  = byStage.quoted.length + wonCount + byStage.lost.length;
+
+  return (
+    <>
+      <section className="stats-grid">
+        <StatCard label="Open Pipeline"   value={compactMoney(opportunities.filter((o) => !['won','lost'].includes(o.stage)).reduce((s,o) => s + o.value, 0))} note="Active opportunities" />
+        <StatCard label="Quotes Won"      value={wonCount}              note={currency(byStage.won.reduce((s,o)=>s+o.value,0))} />
+        <StatCard label="Bid-to-Win"      value={formatRatio(quotedAll ? wonCount / quotedAll : 0)} note="Win rate on quoted" />
+        <StatCard label="Avg Opp Size"    value={compactMoney(opportunities.length ? opportunities.reduce((s,o)=>s+o.value,0)/opportunities.length : 0)} note="Per opportunity" />
+      </section>
+      <section className="panel" style={{ marginBottom: 18 }}>
+        <div className="panel-head"><h2>Sales Funnel</h2><span>{opportunities.length} total opportunities</span></div>
+        <div style={{ padding: '20px 24px', display: 'flex', gap: 8, alignItems: 'stretch' }}>
+          {stages.map((s, i) => {
+            const grp      = byStage[s];
+            const nextStage = stages[i + 1];
+            const nextGrp  = nextStage ? byStage[nextStage] : null;
+            const conv     = grp.length && nextGrp ? nextGrp.length / grp.length : null;
+            return (
+              <React.Fragment key={s}>
+                <div style={{ flex: 1, textAlign: 'center', padding: '18px 8px', borderRadius: 8, background: stageColor[s], color: '#fff' }}>
+                  <div style={{ fontSize: 32, fontWeight: 900, lineHeight: 1 }}>{grp.length}</div>
+                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', marginTop: 6, opacity: .88 }}>{stageLabel[s]}</div>
+                  <div style={{ fontSize: 13, marginTop: 7, fontWeight: 700, opacity: .9 }}>{compactMoney(grp.reduce((sum,o) => sum + o.value, 0))}</div>
+                </div>
+                {nextGrp !== null && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, color: 'var(--muted)', fontSize: 11, flexShrink: 0, minWidth: 32 }}>
+                    <span style={{ fontSize: 20 }}>→</span>
+                    {conv !== null && <span style={{ fontWeight: 700 }}>{formatRatio(conv)}</span>}
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Opportunity Log</h2><span>{opportunities.length} tracked</span></div>
+        <table>
+          <thead><tr><th>Lead</th><th>Client</th><th>Stage</th><th>Est. Value</th><th>Margin</th><th>Created</th><th>Quote Date</th><th>Decision</th></tr></thead>
+          <tbody>
+            {[...opportunities].sort((a,b) => (b.created_date||'').localeCompare(a.created_date||'')).map((o) => (
+              <tr key={o.id}>
+                <td><strong>{o.lead_name}</strong></td>
+                <td>{o.company}</td>
+                <td><span className={`badge badge-${o.stage === 'won' ? 'completed' : o.stage === 'lost' ? 'active' : 'pending'}`}>{stageLabel[o.stage] || o.stage}</span></td>
+                <td><strong>{currency(o.value)}</strong></td>
+                <td style={{ color: 'var(--green)', fontWeight: 700 }}>{formatRatio(o.margin_pct)}</td>
+                <td>{shortDate(o.created_date)}</td>
+                <td>{o.quote_date ? shortDate(o.quote_date) : '—'}</td>
+                <td>{o.decision_date ? shortDate(o.decision_date) : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+function EstActiveEstimatesView({ estimates }) {
+  const [filter, setFilter] = useState('all');
+  const statusMeta = {
+    'awaiting-approval': { label: 'Awaiting Approval', badge: 'badge-active'  },
+    revision:            { label: 'Revision',           badge: 'badge-pending' },
+    pending:             { label: 'Pending',            badge: 'badge-pending' },
+    draft:               { label: 'Draft',              badge: 'badge-completed' },
+  };
+  const counts   = Object.fromEntries(Object.keys(statusMeta).map((k) => [k, estimates.filter((e) => e.status === k).length]));
+  const filtered = filter === 'all' ? estimates : estimates.filter((e) => e.status === filter);
+
+  return (
+    <>
+      <section className="stats-grid">
+        <StatCard label="Total Active"      value={estimates.length}                                    note="All in-progress estimates" />
+        <StatCard label="Awaiting Approval" value={counts['awaiting-approval']}                         note="Ready for client review" />
+        <StatCard label="Revisions Needed"  value={counts.revision}                                     note="Client-requested changes" />
+        <StatCard label="High Priority"     value={estimates.filter((e) => e.priority === 'high').length} note="Flag for immediate action" />
+      </section>
+      <section className="panel">
+        <div className="panel-head">
+          <h2>Active Estimates</h2>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {['all', ...Object.keys(statusMeta)].map((k) => (
+              <button key={k} type="button" onClick={() => setFilter(k)}
+                style={{ fontSize: 11, padding: '5px 10px', background: filter === k ? 'var(--brand)' : '#eef3f6', color: filter === k ? '#fff' : 'var(--brand)', fontWeight: 700 }}>
+                {k === 'all' ? `All (${estimates.length})` : `${statusMeta[k].label} (${counts[k]})`}
+              </button>
+            ))}
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Priority</th><th>Project</th><th>Status</th><th>Bid Amount</th><th>Margin</th><th>Revisions</th><th>Due Date</th></tr></thead>
+          <tbody>
+            {filtered.map((e) => (
+              <tr key={e.id}>
+                <td>{e.priority === 'high' ? <span className="badge" style={{ background: '#ffe8e8', color: 'var(--red)', borderRadius: 999, padding: '3px 9px', fontSize: 11, fontWeight: 800 }}>High</span> : <span style={{ color: 'var(--muted)', fontSize: 12 }}>Normal</span>}</td>
+                <td><strong>{e.project_name}</strong><small>{e.company}</small></td>
+                <td><span className={`badge ${statusMeta[e.status]?.badge || 'badge-pending'}`}>{statusMeta[e.status]?.label || e.status}</span></td>
+                <td><strong>{currency(e.bid_amount)}</strong></td>
+                <td style={{ color: 'var(--green)', fontWeight: 700 }}>{formatRatio(e.margin_pct)}</td>
+                <td style={{ color: e.revisions > 1 ? 'var(--orange)' : 'inherit', fontWeight: e.revisions > 1 ? 700 : 400 }}>{e.revisions}</td>
+                <td>{shortDate(e.due_date)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+function EstBidsQuotesView({ opportunities }) {
+  const quoted   = opportunities.filter((o) => ['quoted', 'won', 'lost'].includes(o.stage));
+  const won      = quoted.filter((o) => o.stage === 'won');
+  const winRate  = quoted.length ? won.length / quoted.length : 0;
+  const stageBadge = { won: 'badge-completed', quoted: 'badge-active', lost: 'badge-pending' };
+
+  return (
+    <>
+      <section className="stats-grid">
+        <StatCard label="Total Quotes"    value={quoted.length}        note={compactMoney(quoted.reduce((s,o)=>s+o.value,0)) + ' bid value'} />
+        <StatCard label="Won"             value={won.length}           note={compactMoney(won.reduce((s,o)=>s+o.value,0)) + ' captured'} />
+        <StatCard label="Pending"         value={opportunities.filter((o)=>o.stage==='quoted').length} note="Awaiting decision" />
+        <StatCard label="Win Rate"        value={formatRatio(winRate)} note={`${opportunities.filter((o)=>o.stage==='lost').length} lost`} />
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Quote Log</h2><span>{quoted.length} quotes sent</span></div>
+        <table>
+          <thead><tr><th>Date</th><th>Project</th><th>Client</th><th>Bid Amount</th><th>Est. GP</th><th>Margin</th><th>Status</th><th>Decision</th></tr></thead>
+          <tbody>
+            {[...quoted].sort((a,b)=>(b.quote_date||'').localeCompare(a.quote_date||'')).map((o) => (
+              <tr key={o.id}>
+                <td>{shortDate(o.quote_date)}</td>
+                <td><strong>{o.lead_name}</strong></td>
+                <td>{o.company}</td>
+                <td><strong>{currency(o.value)}</strong></td>
+                <td style={{ color: 'var(--green)' }}>{currency(o.value * o.margin_pct)}</td>
+                <td style={{ color: 'var(--green)', fontWeight: 700 }}>{formatRatio(o.margin_pct)}</td>
+                <td><span className={`badge ${stageBadge[o.stage] || 'badge-pending'}`}>{o.stage}</span></td>
+                <td>{o.decision_date ? shortDate(o.decision_date) : '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+function EstLiftCaptureView({ metrics, opportunities }) {
+  const captureRate  = metrics.reduce((s,m) => s + m.win_rate, 0) / metrics.length;
+  const avgMargin    = metrics.reduce((s,m) => s + m.avg_margin, 0) / metrics.length;
+  const totalCapt    = metrics.reduce((s,m) => s + m.captured_value, 0);
+  const totalBid     = metrics.reduce((s,m) => s + m.total_bid_value, 0);
+  const latest       = metrics[metrics.length - 1] || {};
+  const prev         = metrics[metrics.length - 2] || {};
+  const liftWin      = (latest.win_rate || 0) - (prev.win_rate || 0);
+  const maxBid       = Math.max(...metrics.map((m) => m.total_bid_value), 1);
+
+  return (
+    <>
+      <section className="stats-grid">
+        <StatCard label="YTD Capture Rate"  value={formatRatio(captureRate)}    note="Avg win rate across period" />
+        <StatCard label="Revenue Captured"  value={compactMoney(totalCapt)}     note={`of ${compactMoney(totalBid)} bid`} />
+        <StatCard label="Avg Gross Margin"  value={formatRatio(avgMargin)}      note="Across all won quotes" />
+        <StatCard label="Win Rate Lift"     value={`${liftWin >= 0 ? '+' : ''}${formatRatio(liftWin)}`} note="vs prior month" />
+      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+        <section className="panel">
+          <div className="panel-head"><h2>Monthly Win Rate</h2><span>Bid-to-win trend</span></div>
+          <MiniLineChart data={metrics} seriesKeys={['win_rate']} seriesColors={['var(--brand)']} />
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Bid vs Captured</h2><span>Monthly revenue comparison</span></div>
+          <MiniLineChart data={metrics} seriesKeys={['total_bid_value', 'captured_value']} seriesColors={['var(--gold)', 'var(--green)']} />
+          <div className="chart-legend" style={{ padding: '0 18px 14px' }}>
+            <span><i style={{ background: 'var(--gold)' }} />Bid Sent</span>
+            <span><i style={{ background: 'var(--green)' }} />Captured</span>
+          </div>
+        </section>
+      </div>
+      <section className="panel">
+        <div className="panel-head"><h2>Margin Analysis</h2><span>Won opportunities</span></div>
+        <table>
+          <thead><tr><th>Project</th><th>Client</th><th>Bid Value</th><th>Gross Profit</th><th>Margin %</th><th>Closed</th></tr></thead>
+          <tbody>
+            {opportunities.filter((o)=>o.stage==='won').map((o) => (
+              <tr key={o.id}>
+                <td><strong>{o.lead_name}</strong></td>
+                <td>{o.company}</td>
+                <td>{currency(o.value)}</td>
+                <td style={{ color: 'var(--green)', fontWeight: 700 }}>{currency(o.value * o.margin_pct)}</td>
+                <td><span style={{ color: o.margin_pct >= 0.35 ? 'var(--green)' : o.margin_pct >= 0.30 ? 'var(--orange)' : 'var(--red)', fontWeight: 700 }}>{formatRatio(o.margin_pct)}</span></td>
+                <td>{shortDate(o.decision_date)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+function EstPerformanceView({ metrics }) {
+  const ytdQuotes  = metrics.reduce((s,m) => s + m.quotes_sent, 0);
+  const ytdWon     = metrics.reduce((s,m) => s + m.quotes_won, 0);
+  const avgTurnaround = metrics.reduce((s,m) => s + m.avg_turnaround_days, 0) / metrics.length;
+  const quotesPerWeek = (ytdQuotes / (metrics.length * 4.33)).toFixed(1);
+  const maxSent    = Math.max(...metrics.map((m) => m.quotes_sent), 1);
+
+  return (
+    <>
+      <section className="stats-grid">
+        <StatCard label="YTD Quotes Sent"  value={ytdQuotes}                                    note={`${ytdWon} won`} />
+        <StatCard label="Quotes / Week"    value={quotesPerWeek}                                note="Avg output rate" />
+        <StatCard label="Avg Turnaround"   value={`${avgTurnaround.toFixed(1)}d`}              note="Lead to quote submission" />
+        <StatCard label="YTD Win Rate"     value={formatRatio(ytdWon / (ytdQuotes || 1))}      note="Overall capture" />
+      </section>
+      <section className="panel" style={{ marginBottom: 18 }}>
+        <div className="panel-head"><h2>Monthly Performance</h2><span>Output by month</span></div>
+        <table>
+          <thead><tr><th>Month</th><th>Sent</th><th>Won</th><th>Win Rate</th><th>Total Bid $</th><th>Captured $</th><th>Avg Margin</th><th>Turnaround</th></tr></thead>
+          <tbody>
+            {[...metrics].reverse().map((m) => (
+              <tr key={m.month}>
+                <td><strong>{new Date(`${m.month}T12:00:00`).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</strong></td>
+                <td>{m.quotes_sent}</td>
+                <td style={{ color: 'var(--green)', fontWeight: 700 }}>{m.quotes_won}</td>
+                <td><span style={{ color: m.win_rate >= 0.5 ? 'var(--green)' : 'var(--orange)', fontWeight: 700 }}>{formatRatio(m.win_rate)}</span></td>
+                <td>{currency(m.total_bid_value)}</td>
+                <td style={{ color: 'var(--green)', fontWeight: 700 }}>{currency(m.captured_value)}</td>
+                <td style={{ color: 'var(--green)' }}>{formatRatio(m.avg_margin)}</td>
+                <td>{m.avg_turnaround_days.toFixed(1)}d</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+        <section className="panel">
+          <div className="panel-head"><h2>Turnaround Trend</h2><span>Days to submit quote</span></div>
+          <MiniLineChart data={metrics} seriesKeys={['avg_turnaround_days']} seriesColors={['var(--orange)']} />
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Quote Volume</h2><span>Sent vs won per month</span></div>
+          <MiniLineChart data={metrics} seriesKeys={['quotes_sent', 'quotes_won']} seriesColors={['var(--gold)', 'var(--green)']} />
+          <div className="chart-legend" style={{ padding: '0 18px 14px' }}>
+            <span><i style={{ background: 'var(--gold)' }} />Sent</span>
+            <span><i style={{ background: 'var(--green)' }} />Won</span>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
+
+function EstScopeView({ scopes }) {
+  const [selectedId, setSelectedId] = useState(scopes[0]?.id || null);
+  const scope = scopes.find((s) => s.id === selectedId) || scopes[0];
+  const complexityColor = { low: 'var(--green)', medium: 'var(--orange)', high: 'var(--red)' };
+
+  if (!scope) return <PlaceholderView title="Scope Viewer" icon="📐" description="No scope data available for this area." />;
+
+  return (
+    <>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
+        {scopes.map((s) => (
+          <button key={s.id} type="button" onClick={() => setSelectedId(s.id)}
+            style={{ background: s.id === selectedId ? 'var(--brand)' : '#eef3f6', color: s.id === selectedId ? '#fff' : 'var(--brand)', fontSize: 13, padding: '8px 14px', fontWeight: 700 }}>
+            {s.project_name}
+          </button>
+        ))}
+      </div>
+      <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
+        <StatCard label="Window Count"  value={scope.window_count}                                note="Total openings" />
+        <StatCard label="Total Sq Ft"   value={`${scope.total_sqft.toLocaleString()} sf`}         note="Estimated coverage" />
+        <StatCard label="Labor Hours"   value={`${scope.labor_hrs}h`}                             note="Installation estimate" />
+        <StatCard label="Complexity"    value={scope.complexity.charAt(0).toUpperCase() + scope.complexity.slice(1)} note={`● ${scope.complexity}`} />
+      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+        <section className="panel">
+          <div className="panel-head"><h2>Product Mix</h2><span>{scope.window_count} windows</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 14 }}>
+            {scope.product_mix.map((p, i) => (
+              <PmBar key={p.type} label={`${p.type} (${p.count})`} value={p.pct} max={1}
+                color={['var(--brand)', 'var(--gold)', 'var(--green)'][i % 3]} sub={formatRatio(p.pct)} />
+            ))}
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Project Details</h2><span>{scope.company}</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 0 }}>
+            {[['Company', scope.company], ['Territory', scope.territory_name], ['Windows', scope.window_count],
+              ['Coverage', `${scope.total_sqft.toLocaleString()} sq ft`], ['Labor Est.', `${scope.labor_hrs} hours`],
+              ['Complexity', scope.complexity]
+            ].map(([label, value]) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, padding: '9px 0', borderBottom: '1px solid var(--line)' }}>
+                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
+                <strong style={{ color: label === 'Complexity' ? complexityColor[value] : 'inherit' }}>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+      <section className="panel">
+        <div className="panel-head"><h2>Room / Area Breakdown</h2><span>{scope.rooms.length} areas</span></div>
+        <table>
+          <thead><tr><th>Area / Room</th><th>Windows</th><th>Avg Width (in)</th><th>Avg Height (in)</th><th>Product Type</th></tr></thead>
+          <tbody>
+            {scope.rooms.map((room, i) => (
+              <tr key={i}>
+                <td><strong>{room.name}</strong></td>
+                <td>{room.windows}</td>
+                <td>{room.width_avg}"</td>
+                <td>{room.height_avg}"</td>
+                <td><span className="badge badge-active">{room.product}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+function EstScheduleView({ visits }) {
+  const confirmed = visits.filter((v) => v.status === 'confirmed').length;
+  const tentative = visits.filter((v) => v.status === 'tentative').length;
+  const sorted    = [...visits].sort((a,b) => a.visit_date.localeCompare(b.visit_date));
+  const typeColor = { initial: 'badge-active', remeasure: 'badge-pending', walkthrough: 'badge-completed' };
+
+  return (
+    <>
+      <section className="stats-grid">
+        <StatCard label="Upcoming Visits"  value={visits.length}                                  note="All scheduled" />
+        <StatCard label="Confirmed"        value={confirmed}                                      note="Locked in" />
+        <StatCard label="Tentative"        value={tentative}                                      note="Pending confirmation" />
+        <StatCard label="Next Visit"       value={sorted.length ? shortDate(sorted[0].visit_date) : '—'} note="Upcoming appointment" />
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Site Visit Schedule</h2><span>{visits.length} appointments</span></div>
+        <table>
+          <thead><tr><th>Date</th><th>Time</th><th>Project</th><th>Client</th><th>Type</th><th>Estimator</th><th>Status</th><th>Notes</th></tr></thead>
+          <tbody>
+            {sorted.map((v) => (
+              <tr key={v.id}>
+                <td><strong>{shortDate(v.visit_date)}</strong></td>
+                <td>{v.visit_time}</td>
+                <td><strong style={{ fontSize: 13 }}>{v.project_name}</strong></td>
+                <td>{v.company}</td>
+                <td><span className={`badge ${typeColor[v.type] || 'badge-pending'}`}>{v.type}</span></td>
+                <td>{v.estimator}</td>
+                <td><span className={`badge badge-${v.status === 'confirmed' ? 'completed' : 'pending'}`}>{v.status}</span></td>
+                <td style={{ maxWidth: 200, fontSize: 12, color: 'var(--muted)' }}>{v.notes}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+function EstFinancialsView({ opportunities, metrics }) {
+  const won           = opportunities.filter((o) => o.stage === 'won');
+  const open          = opportunities.filter((o) => !['won','lost'].includes(o.stage));
+  const wonValue      = won.reduce((s,o) => s + o.value, 0);
+  const pipeValue     = open.reduce((s,o) => s + o.value, 0);
+  const avgMargin     = metrics.reduce((s,m) => s + m.avg_margin, 0) / metrics.length;
+  const expectedCapt  = pipeValue * 0.5;
+  const maxBid        = Math.max(...metrics.map((m) => m.total_bid_value), 1);
+  const stageColors   = ['#687381', '#3478b8', '#d99b2b'];
+  const openStages    = ['lead', 'site-visit', 'quoted'];
+  const stageLabel    = { lead: 'Leads', 'site-visit': 'Site Visits', quoted: 'Quotes Sent' };
+
+  return (
+    <>
+      <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
+        <StatCard label="Revenue Captured"       value={currency(wonValue)}          note="Won deals YTD" />
+        <StatCard label="Expected from Pipeline" value={currency(expectedCapt)}      note="~50% conversion estimate" />
+        <StatCard label="Expected Gross Profit"  value={currency(wonValue * avgMargin)} note={`${formatRatio(avgMargin)} avg margin`} />
+        <StatCard label="Avg Quote Size"         value={currency(metrics.reduce((s,m)=>s+m.avg_quote_size,0)/metrics.length)} note="Historical average" />
+      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+        <section className="panel">
+          <div className="panel-head"><h2>Pipeline by Stage</h2><span>Open value breakdown</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 14 }}>
+            {openStages.map((s, i) => {
+              const grp = opportunities.filter((o) => o.stage === s);
+              const val = grp.reduce((sum,o) => sum + o.value, 0);
+              const max = openStages.map((st) => opportunities.filter((o) => o.stage === st).reduce((sum,o) => sum + o.value, 0));
+              return <PmBar key={s} label={`${stageLabel[s]} (${grp.length})`} value={val} max={Math.max(...max, 1)} color={stageColors[i]} />;
+            })}
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Revenue Summary</h2><span>YTD financial picture</span></div>
+          <div style={{ padding: '16px 18px' }}>
+            {[
+              ['Won & Captured',        currency(wonValue),               'var(--green)'],
+              ['Open Pipeline',         currency(pipeValue),              'var(--brand)'],
+              ['Expected Capture (50%)',currency(expectedCapt),           'var(--gold)'],
+              ['Gross Profit (Won)',    currency(wonValue * avgMargin),    'var(--green)'],
+              ['Avg Margin',           formatRatio(avgMargin),             'var(--green)'],
+            ].map(([label, value, color]) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 0', borderBottom: '1px solid var(--line)', fontSize: 14 }}>
+                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
+                <strong style={{ color }}>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+      <section className="panel">
+        <div className="panel-head"><h2>Monthly Capture Trend</h2><span>Bid value vs revenue captured</span></div>
+        <MiniLineChart data={metrics} seriesKeys={['total_bid_value', 'captured_value']} seriesColors={['var(--gold)', 'var(--brand)']} height={180} />
+        <div className="chart-legend" style={{ padding: '0 18px 14px' }}>
+          <span><i style={{ background: 'var(--gold)' }} />Bid Sent</span>
+          <span><i style={{ background: 'var(--brand)' }} />Captured</span>
+        </div>
+      </section>
+    </>
+  );
+}
+
+// ─── EstimatorDashboard ────────────────────────────────────────────────────
+
+function EstimatorDashboard({ user }) {
+  const [activeView, setActiveView] = useState('dashboard');
+  const lockedArea  = user.territoryId ? Number(user.territoryId) : 0;
+  const [areaId, setAreaId] = useState(lockedArea || 0);
+
+  const tName           = areaId ? territoryNames[areaId] : null;
+  const filteredOpps    = tName ? demoOpportunities.filter((o) => o.territory_name === tName) : demoOpportunities;
+  const filteredEsts    = tName ? demoEstimates.filter((e) => e.territory_name === tName) : demoEstimates;
+  const filteredVisits  = tName ? demoSiteVisits.filter((v) => v.territory_name === tName) : demoSiteVisits;
+  const filteredScopes  = tName ? demoScopeItems.filter((s) => s.territory_name === tName) : demoScopeItems;
+
+  const navMain = [
+    ['dashboard',   'Dashboard'],
+    ['pipeline',    'Pipeline'],
+    ['estimates',   'Active Estimates'],
+    ['bids',        'Bids & Quotes'],
+    ['lift',        'Lift & Capture'],
+    ['performance', 'Performance'],
+    ['scope',       'Scope Viewer'],
+    ['schedule',    'Schedule'],
+    ['financials',  'Financials'],
+    ['reports',     'Reports'],
+  ];
+  const navUtil = [
+    ['messages',  'Messages'],
+    ['documents', 'Documents'],
+    ['alerts',    'Alerts'],
+    ['settings',  'Settings'],
+  ];
+  const currentLabel = [...navMain, ...navUtil].find(([id]) => id === activeView)?.[1] || '';
+
+  function initials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    return parts.length >= 2 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : parts[0].slice(0, 2).toUpperCase();
+  }
+  function formatRole(role) {
+    if (!role) return 'Estimator';
+    return role.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  }
+
+  return (
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div className="brand"><strong>James Blinds</strong><span>Mission Control</span></div>
+        {navMain.map(([id, label]) => (
+          <button key={id} className={activeView === id ? 'nav-active' : ''} onClick={() => setActiveView(id)} type="button">{label}</button>
+        ))}
+        <div className="nav-divider" />
+        {navUtil.map(([id, label]) => (
+          <button key={id} className={activeView === id ? 'nav-active' : ''} onClick={() => setActiveView(id)} type="button">{label}</button>
+        ))}
+        <div className="user-card">
+          <div className="user-avatar">{initials(user.name)}</div>
+          <div className="user-info">
+            <strong>{user.name}</strong>
+            <span>{formatRole(user.role)}</span>
+          </div>
+        </div>
+      </aside>
+
+      <main className="dashboard">
+        <header className="page-head">
+          <div><p>{getAreaName(areaId)}</p><h1>{currentLabel}</h1></div>
+          <div className="actions">
+            {lockedArea ? (
+              <div style={{ padding: '10px 14px', background: '#eef3f6', borderRadius: 6, color: 'var(--brand)', fontWeight: 700, fontSize: 14, border: '1px solid var(--line)', whiteSpace: 'nowrap' }}>
+                {territoryNames[lockedArea]}
+              </div>
+            ) : (
+              <select value={areaId} onChange={(e) => setAreaId(Number(e.target.value))}>
+                <option value="0">All areas</option>
+                <option value="1">Charlotte Metro</option>
+                <option value="2">Lake Norman</option>
+                <option value="3">South Carolina</option>
+                <option value="4">Triad</option>
+              </select>
+            )}
+            <button type="button">Refresh Data</button>
+          </div>
+        </header>
+
+        {activeView === 'dashboard'   && <EstDashboardHome        key={areaId} opportunities={filteredOpps} estimates={filteredEsts} metrics={demoEstimatorMonthly} />}
+        {activeView === 'pipeline'    && <EstPipelineView         key={areaId} opportunities={filteredOpps} />}
+        {activeView === 'estimates'   && <EstActiveEstimatesView  key={areaId} estimates={filteredEsts} />}
+        {activeView === 'bids'        && <EstBidsQuotesView       key={areaId} opportunities={filteredOpps} />}
+        {activeView === 'lift'        && <EstLiftCaptureView      key={areaId} metrics={demoEstimatorMonthly} opportunities={filteredOpps} />}
+        {activeView === 'performance' && <EstPerformanceView      key={areaId} metrics={demoEstimatorMonthly} />}
+        {activeView === 'scope'       && <EstScopeView            key={areaId} scopes={filteredScopes} />}
+        {activeView === 'schedule'    && <EstScheduleView         key={areaId} visits={filteredVisits} />}
+        {activeView === 'financials'  && <EstFinancialsView       key={areaId} opportunities={filteredOpps} metrics={demoEstimatorMonthly} />}
+        {activeView === 'reports'     && <PlaceholderView         key={areaId} title="Reports"   icon="📊" description="Estimate summary, win/loss analysis, and turnaround time reports coming soon." />}
+        {activeView === 'messages'    && <PlaceholderView         key={areaId} title="Messages"  icon="💬" description="Team messaging and client communication threads coming soon." />}
+        {activeView === 'documents'   && <PlaceholderView         key={areaId} title="Documents" icon="📄" description="Estimate templates, past quotes, and scope sheets coming soon." />}
+        {activeView === 'alerts'      && <PlaceholderView         key={areaId} title="Alerts"    icon="🔔" description="Underpriced job flags, missing measurements, and deadline alerts coming soon." />}
+        {activeView === 'settings'    && <PlaceholderView         key={areaId} title="Settings"  icon="⚙️" description="User preferences, territory assignments, and notification settings coming soon." />}
+      </main>
+    </div>
+  );
+}
+
 function App() {
   const [user, setUser] = useState(null);
   if (!user) return <LoginScreen onLogin={setUser} />;
+  if (user.role === 'estimator') return <EstimatorDashboard user={user} />;
   return <ProjectManagerDashboard user={user} />;
 }
 
