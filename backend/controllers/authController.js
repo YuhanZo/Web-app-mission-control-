@@ -21,7 +21,13 @@ const authController = {
       }
 
       // Store minimal user info in session — never store password_hash
-      req.session.user = { id: user.id, name: user.name, role: user.role_name };
+      req.session.user = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role_name,
+        territoryId: user.territory_id,
+      };
 
       res.json({ user: req.session.user });
     } catch (err) {
