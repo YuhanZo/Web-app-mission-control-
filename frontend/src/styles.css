@@ -1007,3 +1007,37 @@ td small {
   pointer-events: none;
   user-select: none;
 }
+
+.area-pill-bar {
+  display: flex;
+  gap: 5px;
+  background: #eef3f6;
+  border-radius: 22px;
+  padding: 4px;
+}
+
+.area-pill {
+  padding: 6px 14px;
+  border-radius: 18px;
+  border: none;
+  background: transparent;
+  color: var(--brand);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+
+.area-pill:hover {
+  background: rgba(33, 79, 111, 0.1);
+}
+
+.area-pill-active {
+  background: var(--brand);
+  color: #fff;
+}
+
+.area-pill-active:hover {
+  background: var(--brand-dark);
+}

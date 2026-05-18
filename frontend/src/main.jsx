@@ -493,15 +493,16 @@ function LoginScreen({ onLogin }) {
       if (!response.ok) throw new Error(body.error || 'Unable to log in.');
       onLogin(body.user);
     } catch (err) {
-      const isChief = /chief|chiefest|chief_est/i.test(email);
-      const isEst   = !isChief && /\.est[@.]|estimat/i.test(email);
+      const isExec  = /exec|executive|ceo|cfo/i.test(email);
+      const isChief = !isExec && /chief|chiefest|chief_est/i.test(email);
+      const isEst   = !isExec && !isChief && /\.est[@.]|estimat/i.test(email);
       setError(`${err.message} Showing demo data.`);
       onLogin({
         id: 'demo',
-        name: isChief ? 'Sarah Mitchell' : isEst ? 'Alex Chen' : 'Maya Johnson',
+        name: isExec ? 'David Park' : isChief ? 'Sarah Mitchell' : isEst ? 'Alex Chen' : 'Maya Johnson',
         email,
-        role: isChief ? 'chief_estimator' : isEst ? 'estimator' : 'project_manager',
-        territoryId: isChief ? 0 : 1,
+        role: isExec ? 'executive' : isChief ? 'chief_estimator' : isEst ? 'estimator' : 'project_manager',
+        territoryId: (isExec || isChief) ? 0 : 1,
         demo: true,
       });
     } finally {
@@ -523,7 +524,7 @@ function LoginScreen({ onLogin }) {
           Email
           <input value={email} onChange={(event) => setEmail(event.target.value)} />
           <small style={{ color: 'var(--muted)', fontWeight: 400, marginTop: 4, display: 'block' }}>
-            Demo: <code>maya.pm@jamesblinds.com</code> · PM &nbsp;|&nbsp; <code>alex.est@jamesblinds.com</code> · Estimator &nbsp;|&nbsp; <code>sarah.chiefest@jamesblinds.com</code> · Chief Est.
+            Demo: <code>maya.pm@jamesblinds.com</code> · PM &nbsp;|&nbsp; <code>alex.est@jamesblinds.com</code> · Estimator &nbsp;|&nbsp; <code>sarah.chiefest@jamesblinds.com</code> · Chief Est. &nbsp;|&nbsp; <code>david.exec@jamesblinds.com</code> · Executive
           </small>
         </label>
         <label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
@@ -2830,11 +2831,391 @@ function EstimatorDashboard({ user }) {
   );
 }
 
+// ─── Executive Dashboard ───────────────────────────────────────────────────
+
+function ExecOverview({ projects, opportunities, estimators, onSelectEstimator }) {
+  const [selectedProject, setSelectedProject] = useState(null);
+  const totalContract = projects.reduce((s, p) => s + projectContractValue(p), 0);
+  const totalCaptured = estimators.reduce((s, e) => s + e.captured, 0);
+  const totalPipeline = estimators.reduce((s, e) => s + e.pipeline_value, 0);
+  const teamWon       = estimators.reduce((s, e) => s + e.ytd_won, 0);
+  const teamQuotes    = estimators.reduce((s, e) => s + e.ytd_quotes, 0);
+  const winRate       = teamQuotes ? teamWon / teamQuotes : 0;
+  const avgMargin     = estimators.length ? estimators.reduce((s, e) => s + e.avg_margin, 0) / estimators.length : 0;
+  const maxCaptured   = Math.max(...estimators.map((e) => e.captured), 1);
+  const stageBarMax   = Math.max(...['active', 'pending', 'completed'].map((st) =>
+    projects.filter((p) => p.status === st).reduce((s, p) => s + projectContractValue(p), 0)), 1);
+
+  return (
+    <>
+      <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
+        <StatCard label="Active Contract Value" value={compactMoney(totalContract)} note={`${projects.length} projects`} />
+        <StatCard label="Revenue Captured YTD"  value={compactMoney(totalCaptured)} note="Won deal value" />
+        <StatCard label="Team Win Rate"         value={formatRatio(winRate)}         note="Bid-to-win ratio" />
+        <StatCard label="Avg Gross Margin"      value={formatRatio(avgMargin)}       note="YTD across team" />
+      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
+        <section className="panel">
+          <div className="panel-head"><h2>Financial</h2><span>Revenue by territory</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 12 }}>
+            {[...estimators].sort((a, b) => b.captured - a.captured).map((est) => (
+              <PmBar key={est.id} label={est.territory_name} value={est.captured} max={maxCaptured} color={EST_COLORS[est.id - 1]} />
+            ))}
+          </div>
+          <div style={{ padding: '4px 18px 14px' }}>
+            {[['Captured YTD', compactMoney(totalCaptured), 'var(--green)'],
+              ['Pipeline',     compactMoney(totalPipeline), 'var(--brand)'],
+              ['Avg Margin',   formatRatio(avgMargin),      'var(--green)'],
+            ].map(([label, value, color]) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '7px 0', borderBottom: '1px solid var(--line)' }}>
+                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
+                <strong style={{ color }}>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Estimating</h2><span>Win rate per estimator</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 12 }}>
+            {[...estimators].sort((a, b) => b.win_rate - a.win_rate).map((est) => (
+              <PmBar key={est.id} label={est.name} value={est.win_rate} max={1} color={EST_COLORS[est.id - 1]} sub={formatRatio(est.win_rate)} />
+            ))}
+          </div>
+          <div style={{ padding: '4px 18px 14px' }}>
+            {[['Total Quotes', teamQuotes,                                                  'inherit'],
+              ['Total Won',    teamWon,                                                     'var(--green)'],
+              ['Active Est.',  estimators.reduce((s, e) => s + e.active_estimates, 0),     'var(--brand)'],
+            ].map(([label, value, color]) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '7px 0', borderBottom: '1px solid var(--line)' }}>
+                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
+                <strong style={{ color }}>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Operations</h2><span>Project status breakdown</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 12 }}>
+            {['active', 'pending', 'completed'].map((st, i) => {
+              const grp = projects.filter((p) => p.status === st);
+              return <PmBar key={st} label={`${statusLabels[st]} (${grp.length})`}
+                value={grp.reduce((s, p) => s + projectContractValue(p), 0)}
+                max={stageBarMax} color={['var(--brand)', 'var(--gold)', 'var(--green)'][i]} />;
+            })}
+          </div>
+          <div style={{ padding: '4px 18px 14px' }}>
+            {[['Total Projects',  projects.length,                                                                                                       'inherit'],
+              ['Total Contract',  compactMoney(totalContract),                                                                                           'var(--brand)'],
+              ['Completed Rev',   compactMoney(projects.filter((p) => p.status === 'completed').reduce((s, p) => s + projectContractValue(p), 0)),       'var(--green)'],
+            ].map(([label, value, color]) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '7px 0', borderBottom: '1px solid var(--line)' }}>
+                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
+                <strong style={{ color }}>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+      <ProjectTable projects={projects} onSelect={setSelectedProject} />
+      {selectedProject && <ProjectDetailPanel project={selectedProject} onClose={() => setSelectedProject(null)} />}
+    </>
+  );
+}
+
+function ExecFinancials({ projects, estimators }) {
+  const [selectedProject, setSelectedProject] = useState(null);
+  const monthKeys   = ['2026-01-01', '2026-02-01', '2026-03-01', '2026-04-01', '2026-05-01'];
+  const teamMonthly = monthKeys.map((mk, i) => ({
+    month: mk,
+    bid:      estimators.reduce((s, est) => s + (demoEstimatorMonthlyData[est.id]?.[i]?.total_bid_value || 0), 0),
+    captured: estimators.reduce((s, est) => s + (demoEstimatorMonthlyData[est.id]?.[i]?.captured_value  || 0), 0),
+  }));
+  const totalContract = projects.reduce((s, p) => s + projectContractValue(p), 0);
+  const totalCaptured = estimators.reduce((s, e) => s + e.captured, 0);
+  const totalPipeline = estimators.reduce((s, e) => s + e.pipeline_value, 0);
+  const avgMargin     = estimators.length ? estimators.reduce((s, e) => s + e.avg_margin, 0) / estimators.length : 0;
+  const maxCaptured   = Math.max(...estimators.map((e) => e.captured), 1);
+  const projectBilling = projects.map((p) => {
+    const work = demoProjectWork[p.id] || { billed_pct: 0 };
+    const contract = projectContractValue(p);
+    return { ...p, contract, billed: contract * (work.billed_pct / 100), billed_pct: work.billed_pct };
+  });
+
+  return (
+    <>
+      <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
+        <StatCard label="Active Contract Value" value={compactMoney(totalContract)} note="In-progress projects" />
+        <StatCard label="Revenue Captured YTD"  value={compactMoney(totalCaptured)} note="Won deal value" />
+        <StatCard label="Open Pipeline"         value={compactMoney(totalPipeline)} note="Estimating pipeline" />
+        <StatCard label="Avg Gross Margin"      value={formatRatio(avgMargin)}      note="YTD across team" />
+      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+        <section className="panel">
+          <div className="panel-head"><h2>Revenue by Territory</h2><span>YTD captured value</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 14 }}>
+            {[...estimators].sort((a, b) => b.captured - a.captured).map((est) => (
+              <PmBar key={est.id} label={`${est.territory_name} — ${est.name}`} value={est.captured} max={maxCaptured} color={EST_COLORS[est.id - 1]} />
+            ))}
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Financial Summary</h2><span>Company-wide totals</span></div>
+          <div style={{ padding: '16px 18px' }}>
+            {[['Active Contract Value',  currency(totalContract),             'var(--brand)'],
+              ['Revenue Captured (Est)', currency(totalCaptured),             'var(--green)'],
+              ['Open Pipeline',          currency(totalPipeline),             'var(--brand)'],
+              ['Expected Capture (50%)', currency(totalPipeline * 0.5),       'var(--orange)'],
+              ['Expected Gross Profit',  currency(totalCaptured * avgMargin), 'var(--green)'],
+              ['Avg Gross Margin',       formatRatio(avgMargin),              'var(--green)'],
+            ].map(([label, value, color]) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 0', borderBottom: '1px solid var(--line)', fontSize: 14 }}>
+                <span style={{ color: 'var(--muted)', fontWeight: 600 }}>{label}</span>
+                <strong style={{ color }}>{value}</strong>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+      <section className="panel" style={{ marginBottom: 18 }}>
+        <div className="panel-head"><h2>Monthly Revenue Trend</h2><span>Bid sent vs captured</span></div>
+        <MiniLineChart data={teamMonthly} seriesKeys={['bid', 'captured']} seriesColors={['var(--gold)', 'var(--brand)']} height={180} />
+        <div className="chart-legend" style={{ padding: '0 18px 14px' }}>
+          <span><i style={{ background: 'var(--gold)' }} />Bid Sent</span>
+          <span><i style={{ background: 'var(--brand)' }} />Captured</span>
+        </div>
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Project Billing Status</h2><span>Click any row to open project details</span></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Project</th><th>Territory</th><th>Status</th>
+              <th style={{ textAlign: 'right' }}>Contract</th>
+              <th style={{ textAlign: 'right' }}>Billed</th>
+              <th style={{ textAlign: 'right' }}>Remaining</th>
+              <th style={{ textAlign: 'right' }}>% Billed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {projectBilling.map((p) => (
+              <tr key={p.id} className="hoverable-row" onClick={() => setSelectedProject(p)}>
+                <td><strong style={{ fontSize: 13 }}>{p.project_name}</strong><small>{p.company_name}</small></td>
+                <td><span className="badge badge-active" style={{ fontSize: 11 }}>{p.territory_name}</span></td>
+                <td><span className={`badge badge-${p.status}`}>{statusLabels[p.status]}</span></td>
+                <td style={{ textAlign: 'right' }}>{currency(p.contract)}</td>
+                <td style={{ textAlign: 'right', color: 'var(--green)', fontWeight: 700 }}>{currency(p.billed)}</td>
+                <td style={{ textAlign: 'right', color: 'var(--orange)' }}>{currency(p.contract - p.billed)}</td>
+                <td style={{ textAlign: 'right', fontWeight: 700 }}>{p.billed_pct}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+      {selectedProject && <ProjectDetailPanel project={selectedProject} onClose={() => setSelectedProject(null)} />}
+    </>
+  );
+}
+
+function ExecEstimating({ estimators, opportunities, onSelectEstimator }) {
+  const maxCaptured = Math.max(...estimators.map((e) => e.captured), 1);
+  const openStages  = ['lead', 'site-visit', 'quoted'];
+  const stageMax    = Math.max(...openStages.map((s) =>
+    opportunities.filter((o) => o.stage === s).reduce((sum, o) => sum + o.value, 0)), 1);
+
+  return (
+    <>
+      <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
+        <StatCard label="Estimators"      value={estimators.length}                                              note="Active this period" />
+        <StatCard label="Quotes YTD"      value={estimators.reduce((s, e) => s + e.ytd_quotes, 0)}              note="Total sent" />
+        <StatCard label="Deals Won"       value={estimators.reduce((s, e) => s + e.ytd_won, 0)}                 note="Closed won" />
+        <StatCard label="Active Pipeline" value={compactMoney(estimators.reduce((s, e) => s + e.pipeline_value, 0))} note="Open deal value" />
+      </section>
+      <section className="panel" style={{ marginBottom: 18 }}>
+        <div className="panel-head"><h2>Estimator Performance</h2><span>Click any row to view full profile</span></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Estimator</th><th>Territory</th>
+              <th style={{ textAlign: 'right' }}>Quotes</th><th style={{ textAlign: 'right' }}>Won</th>
+              <th style={{ textAlign: 'right' }}>Win Rate</th><th style={{ textAlign: 'right' }}>Captured</th>
+              <th style={{ textAlign: 'right' }}>Margin</th><th style={{ textAlign: 'right' }}>Turnaround</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...estimators].sort((a, b) => b.captured - a.captured).map((est) => (
+              <tr key={est.id} className="hoverable-row" onClick={() => onSelectEstimator(est)}>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: EST_COLORS[est.id - 1], color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                      {est.name.split(' ').map((p) => p[0]).join('')}
+                    </div>
+                    <strong style={{ fontSize: 13 }}>{est.name}</strong>
+                  </div>
+                </td>
+                <td><span className="badge badge-active">{est.territory_name}</span></td>
+                <td style={{ textAlign: 'right' }}>{est.ytd_quotes}</td>
+                <td style={{ textAlign: 'right', color: 'var(--green)', fontWeight: 700 }}>{est.ytd_won}</td>
+                <td style={{ textAlign: 'right' }}><span style={{ color: est.win_rate >= 0.5 ? 'var(--green)' : 'var(--orange)', fontWeight: 700 }}>{formatRatio(est.win_rate)}</span></td>
+                <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--brand)' }}>{compactMoney(est.captured)}</td>
+                <td style={{ textAlign: 'right', color: 'var(--green)' }}>{formatRatio(est.avg_margin)}</td>
+                <td style={{ textAlign: 'right' }}>{est.avg_turnaround.toFixed(1)}d</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+        <section className="panel">
+          <div className="panel-head"><h2>Revenue Captured</h2><span>YTD by estimator</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 14 }}>
+            {[...estimators].sort((a, b) => b.captured - a.captured).map((est) => (
+              <PmBar key={est.id} label={`${est.name} — ${est.territory_name}`} value={est.captured} max={maxCaptured} color={EST_COLORS[est.id - 1]} />
+            ))}
+          </div>
+        </section>
+        <section className="panel">
+          <div className="panel-head"><h2>Open Pipeline by Stage</h2><span>Deal value</span></div>
+          <div style={{ padding: '16px 18px', display: 'grid', gap: 14 }}>
+            {openStages.map((stage, i) => {
+              const grp = opportunities.filter((o) => o.stage === stage);
+              return <PmBar key={stage}
+                label={`${stage === 'site-visit' ? 'Site Visit' : stage.charAt(0).toUpperCase() + stage.slice(1)} (${grp.length})`}
+                value={grp.reduce((s, o) => s + o.value, 0)} max={stageMax}
+                color={['#687381', '#3478b8', '#d99b2b'][i]} />;
+            })}
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
+
+function ExecOperations({ projects }) {
+  const [selectedProject, setSelectedProject] = useState(null);
+  const workEntries = projects.map((p) => {
+    const w = demoProjectWork[p.id] || { completion_pct: 0, billed_pct: 0, labor_logged: 0, labor_estimated: 0 };
+    return { ...p, completion_pct: w.completion_pct, billed_pct: w.billed_pct, labor_logged: w.labor_logged, labor_estimated: w.labor_estimated, contract: projectContractValue(p) };
+  });
+
+  return (
+    <>
+      <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
+        <StatCard label="Total Projects" value={projects.length}                                         note="In view" />
+        <StatCard label="Active"         value={projects.filter((p) => p.status === 'active').length}    note="Currently installing" />
+        <StatCard label="Pending"        value={projects.filter((p) => p.status === 'pending').length}   note="Awaiting start" />
+        <StatCard label="Completed YTD"  value={projects.filter((p) => p.status === 'completed').length} note="Closed out" />
+      </section>
+      <section className="panel">
+        <div className="panel-head"><h2>Project Work Progress</h2><span>Click any row to open full details</span></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Project</th><th>Territory</th><th>Status</th>
+              <th>Completion</th>
+              <th style={{ textAlign: 'right' }}>Contract</th>
+              <th style={{ textAlign: 'right' }}>Billed</th>
+              <th style={{ textAlign: 'right' }}>Labor</th>
+            </tr>
+          </thead>
+          <tbody>
+            {workEntries.map((p) => (
+              <tr key={p.id} className="hoverable-row" onClick={() => setSelectedProject(p)}>
+                <td><strong style={{ fontSize: 13 }}>{p.project_name}</strong><small>{p.company_name}</small></td>
+                <td><span className="badge badge-active" style={{ fontSize: 11 }}>{p.territory_name}</span></td>
+                <td><span className={`badge badge-${p.status}`}>{statusLabels[p.status]}</span></td>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 130 }}>
+                    <div style={{ flex: 1, height: 6, borderRadius: 999, background: '#e8edf0', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', borderRadius: 'inherit', background: p.completion_pct === 100 ? 'var(--green)' : 'var(--brand)', width: `${p.completion_pct}%` }} />
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: p.completion_pct === 100 ? 'var(--green)' : 'var(--brand)', minWidth: 34 }}>{p.completion_pct}%</span>
+                  </div>
+                </td>
+                <td style={{ textAlign: 'right' }}>{currency(p.contract)}</td>
+                <td style={{ textAlign: 'right', color: 'var(--green)', fontWeight: 600 }}>{p.billed_pct}%</td>
+                <td style={{ textAlign: 'right', fontSize: 12, color: 'var(--muted)' }}>{p.labor_logged}h / {p.labor_estimated}h</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+      {selectedProject && <ProjectDetailPanel project={selectedProject} onClose={() => setSelectedProject(null)} />}
+    </>
+  );
+}
+
+function ExecutiveDashboard({ user }) {
+  const [activeView,  setActiveView]  = useState('overview');
+  const [areaId,      setAreaId]      = useState(0);
+  const [selectedEst, setSelectedEst] = useState(null);
+
+  const tName              = areaId ? territoryNames[areaId] : null;
+  const filteredProjects   = tName ? demoProjects.filter((p) => p.territory_name === tName) : demoProjects;
+  const filteredOpps       = tName ? demoAllOpportunities.filter((o) => o.territory_name === tName) : demoAllOpportunities;
+  const filteredEstimators = tName ? demoEstimators.filter((e) => e.territory_name === tName) : demoEstimators;
+
+  const nav     = [['overview', 'Overview'], ['financials', 'Financials'], ['estimating', 'Estimating'], ['operations', 'Operations'], ['reports', 'Reports']];
+  const navUtil = [['settings', 'Settings']];
+  const currentLabel = [...nav, ...navUtil].find(([id]) => id === activeView)?.[1] || '';
+  const areaShort    = { 0: 'All Areas', 1: 'Charlotte', 2: 'Lake Norman', 3: 'S. Carolina', 4: 'Triad' };
+
+  function initials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    return parts.length >= 2 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : parts[0].slice(0, 2).toUpperCase();
+  }
+
+  return (
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div className="brand"><strong>James Blinds</strong><span>Mission Control</span></div>
+        {nav.map(([id, label]) => (
+          <button key={id} className={activeView === id ? 'nav-active' : ''} onClick={() => setActiveView(id)} type="button">{label}</button>
+        ))}
+        <div className="nav-divider" />
+        {navUtil.map(([id, label]) => (
+          <button key={id} className={activeView === id ? 'nav-active' : ''} onClick={() => setActiveView(id)} type="button">{label}</button>
+        ))}
+        <div className="user-card">
+          <div className="user-avatar">{initials(user.name)}</div>
+          <div className="user-info"><strong>{user.name}</strong><span>Executive</span></div>
+        </div>
+      </aside>
+
+      <main className="dashboard">
+        <header className="page-head">
+          <div><p>Executive Dashboard</p><h1>{currentLabel}</h1></div>
+          <div className="actions">
+            <div className="area-pill-bar">
+              {[0, 1, 2, 3, 4].map((id) => (
+                <button key={id} type="button" className={`area-pill${areaId === id ? ' area-pill-active' : ''}`} onClick={() => setAreaId(id)}>
+                  {areaShort[id]}
+                </button>
+              ))}
+            </div>
+            <button type="button">Refresh</button>
+          </div>
+        </header>
+
+        {activeView === 'overview'   && <ExecOverview   key={areaId} projects={filteredProjects} opportunities={filteredOpps} estimators={filteredEstimators} onSelectEstimator={setSelectedEst} />}
+        {activeView === 'financials' && <ExecFinancials key={areaId} projects={filteredProjects} estimators={filteredEstimators} />}
+        {activeView === 'estimating' && <ExecEstimating key={areaId} estimators={filteredEstimators} opportunities={filteredOpps} onSelectEstimator={setSelectedEst} />}
+        {activeView === 'operations' && <ExecOperations key={areaId} projects={filteredProjects} />}
+        {activeView === 'reports'    && <PlaceholderView title="Reports"  icon="📊" description="Executive summaries, board reports, and year-over-year analysis coming soon." />}
+        {activeView === 'settings'   && <PlaceholderView title="Settings" icon="⚙️" description="Executive preferences and system configuration coming soon." />}
+
+        {selectedEst && <EstimatorProfilePanel estimator={selectedEst} onClose={() => setSelectedEst(null)} />}
+      </main>
+    </div>
+  );
+}
+
 function App() {
   const [user, setUser] = useState(null);
   if (!user) return <LoginScreen onLogin={setUser} />;
+  if (user.role === 'executive')       return <ExecutiveDashboard      user={user} />;
   if (user.role === 'chief_estimator') return <ChiefEstimatorDashboard user={user} />;
-  if (user.role === 'estimator') return <EstimatorDashboard user={user} />;
+  if (user.role === 'estimator')       return <EstimatorDashboard      user={user} />;
   return <ProjectManagerDashboard user={user} />;
 }
 
