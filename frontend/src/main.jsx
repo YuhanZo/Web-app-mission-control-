@@ -2190,9 +2190,9 @@ function ProjectManagerDashboard({ user }) {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">
-          <img src="/logo.png" alt="James Blinds" style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 8, background: 'rgba(255,255,255,0.92)', padding: 4, marginBottom: 8, display: 'block' }} />
-          <strong>James Blinds</strong><span>Mission Control</span>
+        <div className="brand" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <img src="/logo.png" alt="James Blinds" style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 7, background: 'rgba(255,255,255,0.92)', padding: 3, flexShrink: 0 }} />
+          <div><strong>James Blinds</strong><span>Mission Control</span></div>
         </div>
         {navMain.map(([id, label]) => (
           <button key={id} className={activeView === id ? 'nav-active' : ''} onClick={() => setActiveView(id)} type="button">{label}</button>
@@ -3377,9 +3377,9 @@ function ChiefEstimatorDashboard({ user }) {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">
-          <img src="/logo.png" alt="James Blinds" style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 8, background: 'rgba(255,255,255,0.92)', padding: 4, marginBottom: 8, display: 'block' }} />
-          <strong>James Blinds</strong><span>Mission Control</span>
+        <div className="brand" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <img src="/logo.png" alt="James Blinds" style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 7, background: 'rgba(255,255,255,0.92)', padding: 3, flexShrink: 0 }} />
+          <div><strong>James Blinds</strong><span>Mission Control</span></div>
         </div>
         {navGroups.map((group, gi) => (
           <React.Fragment key={gi}>
@@ -3476,9 +3476,9 @@ function EstimatorDashboard({ user }) {
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand">
-          <img src="/logo.png" alt="James Blinds" style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 8, background: 'rgba(255,255,255,0.92)', padding: 4, marginBottom: 8, display: 'block' }} />
-          <strong>James Blinds</strong><span>Mission Control</span>
+        <div className="brand" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <img src="/logo.png" alt="James Blinds" style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 7, background: 'rgba(255,255,255,0.92)', padding: 3, flexShrink: 0 }} />
+          <div><strong>James Blinds</strong><span>Mission Control</span></div>
         </div>
         {navMain.map(([id, label]) => (
           <button key={id} className={activeView === id ? 'nav-active' : ''} onClick={() => setActiveView(id)} type="button">{label}</button>
