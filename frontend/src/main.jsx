@@ -941,8 +941,8 @@ function InstallerCalendar({ areaId }) {
   useEffect(() => {
     fetch('/api/installers', { credentials: 'include' })
       .then((r) => r.json())
-      .then((rows) => setInstallers(rows))
-      .catch(() => setInstallers([]));
+      .then((rows) => setInstallers(rows.length ? rows : demoInstallers))
+      .catch(() => setInstallers(demoInstallers));
   }, []);
 
   const days = Array.from({ length: 7 }, (_, i) => {
