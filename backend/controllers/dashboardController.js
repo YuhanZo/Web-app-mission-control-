@@ -8,10 +8,11 @@ const dashboardController = {
         ProjectModel.countActive(),
         ProjectModel.findRecent(10),
       ]);
+      const territoryId = req.query.territory ? Number(req.query.territory) : req.session.user.territoryId;
       const managerDashboard = await ProjectModel.getManagerDashboard({
         userId: req.session.user.id,
         role: req.session.user.role,
-        territoryId: req.session.user.territoryId,
+        territoryId,
       });
 
       res.json({

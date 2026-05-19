@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
@@ -122,7 +122,8 @@ function monthLabel(value) {
 
 function shortDate(value) {
   if (!value) return 'Not scheduled';
-  return new Date(`${value}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const iso = String(value).slice(0, 10);
+  return new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 function isoDate(date) {
@@ -683,6 +684,8 @@ function ProjectsView({ projects }) {
   );
 }
 
+const SUB_COLORS = { measure: '#6c8ebf', install: '#2a9d8f', punch: '#e09c4a' };
+
 function ProjectTable({ projects, compact = false, onSelect }) {
   return (
     <section className="panel table-panel">
@@ -750,20 +753,359 @@ function FinancialSide({ dashboard }) {
   );
 }
 
-function CalendarView({ projects }) {
-  const [anchor, setAnchor] = useState(new Date('2026-05-01T12:00:00'));
-  const monthStart = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
-  const gridStart = new Date(monthStart);
-  gridStart.setDate(1 - monthStart.getDay());
-  const days = Array.from({ length: 42 }, (_, index) => {
-    const day = new Date(gridStart);
-    day.setDate(gridStart.getDate() + index);
-    return day;
+// ─── Scheduling: Monthly Gantt ──────────────────────────────────────────────
+
+function MonthlyGantt({ projects, subprojects }) {
+  const today = new Date();
+  const [startMonth, setStartMonth] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
+  const MONTHS = 6;
+
+  const months = Array.from({ length: MONTHS }, (_, i) => {
+    const d = new Date(startMonth);
+    d.setMonth(d.getMonth() + i);
+    return d;
   });
-  const events = projects.flatMap((project) => [
-    project.install_start_date && { date: project.install_start_date, type: 'Install Start', project },
-    project.install_end_date && { date: project.install_end_date, type: 'Install End', project },
-    project.completion_date && { date: project.completion_date, type: 'Complete', project },
+
+  const totalDays = (start, end) => {
+    if (!start || !end) return 0;
+    return Math.max(0, Math.round((new Date(end) - new Date(start)) / 86400000) + 1);
+  };
+
+  // build a flat list: projects with their subprojects as child rows
+  const rows = projects.flatMap((p) => {
+    const subs = subprojects.filter((s) => s.project_id === p.id);
+    const hasSubs = subs.length > 0;
+    return [
+      { ...p, _type: 'project', _hasSubs: hasSubs },
+      ...subs.map((s) => ({ ...s, _type: 'sub', project_name: p.project_name })),
+    ];
+  });
+
+  const rangeStart = months[0];
+  const rangeEnd   = new Date(months[MONTHS - 1].getFullYear(), months[MONTHS - 1].getMonth() + 1, 0);
+  const rangeDays  = totalDays(rangeStart, rangeEnd) || 1;
+
+  function barStyle(startStr, endStr, color) {
+    if (!startStr) return null;
+    const s = new Date(startStr);
+    const e = endStr ? new Date(endStr) : s;
+    if (e < rangeStart || s > rangeEnd) return null;
+    const clampS = s < rangeStart ? rangeStart : s;
+    const clampE = e > rangeEnd   ? rangeEnd   : e;
+    const left  = (totalDays(rangeStart, clampS) - 1) / rangeDays * 100;
+    const width = Math.max(0.5, totalDays(clampS, clampE) / rangeDays * 100);
+    return { left: `${left}%`, width: `${width}%`, background: color || 'var(--brand)' };
+  }
+
+  const todayPct = totalDays(rangeStart, today) / rangeDays * 100;
+
+  return (
+    <div className="gantt-wrap">
+      <div className="gantt-header">
+        <div className="gantt-label-col" />
+        {months.map((m) => (
+          <div key={m.toISOString()} className="gantt-month-label">
+            {m.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}
+          </div>
+        ))}
+      </div>
+
+      <div className="gantt-body">
+        {/* today line */}
+        <div className="gantt-today-line" style={{ left: `calc(200px + ${todayPct}% * ((100% - 200px) / 100))` }} />
+
+        {rows.map((row) => {
+          if (row._type === 'project') {
+            const style = barStyle(row.install_start_date, row.install_end_date, 'var(--brand)');
+            return (
+              <div key={`p-${row.id}`} className="gantt-row gantt-project-row">
+                <div className="gantt-label">
+                  <strong>{row.project_name}</strong>
+                  <small>{getAreaName(row.territory_id, row.territory_name)}</small>
+                </div>
+                <div className="gantt-track">
+                  {style && <div className="gantt-bar" style={style}>{shortDate(row.install_start_date)}</div>}
+                  {!row.install_start_date && <span className="gantt-tbd">TBD</span>}
+                </div>
+              </div>
+            );
+          }
+          // subproject row
+          const color = SUB_COLORS[row.type] || '#999';
+          const style = barStyle(row.start_date, row.end_date, color);
+          return (
+            <div key={`s-${row.id}`} className="gantt-row gantt-sub-row">
+              <div className="gantt-label gantt-sub-label">
+                <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: color, marginRight: 5 }} />
+                {row.label || row.type}
+                {row.complete && <span className="gantt-done-badge">✓</span>}
+              </div>
+              <div className="gantt-track">
+                {style && <div className="gantt-bar gantt-sub-bar" style={style} />}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="gantt-nav">
+        <button type="button" onClick={() => setStartMonth(new Date(startMonth.getFullYear(), startMonth.getMonth() - 1, 1))}>← Back</button>
+        <button type="button" onClick={() => setStartMonth(new Date(today.getFullYear(), today.getMonth(), 1))}>Today</button>
+        <button type="button" onClick={() => setStartMonth(new Date(startMonth.getFullYear(), startMonth.getMonth() + 1, 1))}>Forward →</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Scheduling: Daily View ──────────────────────────────────────────────────
+
+function DailyView({ projects }) {
+  const [anchor, setAnchor] = useState(new Date());
+  const key = isoDate(anchor);
+
+  const active = projects.filter((p) => {
+    if (!p.install_start_date || !p.install_end_date) return false;
+    return p.install_start_date <= key && p.install_end_date >= key;
+  });
+
+  const starting = projects.filter((p) => p.install_start_date === key);
+  const ending   = projects.filter((p) => p.install_end_date   === key);
+
+  function move(days) {
+    const d = new Date(anchor);
+    d.setDate(d.getDate() + days);
+    setAnchor(d);
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="panel" style={{ padding: '14px 20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button type="button" onClick={() => move(-1)}>← Prev</button>
+          <h2 style={{ margin: 0, fontSize: 18 }}>
+            {anchor.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+          </h2>
+          <button type="button" onClick={() => setAnchor(new Date())}>Today</button>
+          <button type="button" onClick={() => move(1)}>Next →</button>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+        <section className="panel">
+          <div className="panel-head"><h2>Active On Site</h2><span>{active.length} jobs</span></div>
+          {active.length === 0 && <p style={{ padding: '12px 18px', color: 'var(--muted)', fontSize: 13 }}>No active installs</p>}
+          {active.map((p) => (
+            <div key={p.id} style={{ padding: '10px 18px', borderBottom: '1px solid var(--line)' }}>
+              <strong style={{ display: 'block', fontSize: 13 }}>{p.project_name}</strong>
+              <small style={{ color: 'var(--muted)' }}>{getAreaName(p.territory_id, p.territory_name)} · through {shortDate(p.install_end_date)}</small>
+            </div>
+          ))}
+        </section>
+
+        <section className="panel">
+          <div className="panel-head"><h2>Starting Today</h2><span>{starting.length}</span></div>
+          {starting.length === 0 && <p style={{ padding: '12px 18px', color: 'var(--muted)', fontSize: 13 }}>None</p>}
+          {starting.map((p) => (
+            <div key={p.id} style={{ padding: '10px 18px', borderBottom: '1px solid var(--line)' }}>
+              <strong style={{ display: 'block', fontSize: 13 }}>{p.project_name}</strong>
+              <small style={{ color: 'var(--green)' }}>Install begins · {currency(projectContractValue(p))}</small>
+            </div>
+          ))}
+        </section>
+
+        <section className="panel">
+          <div className="panel-head"><h2>Wrapping Up</h2><span>{ending.length}</span></div>
+          {ending.length === 0 && <p style={{ padding: '12px 18px', color: 'var(--muted)', fontSize: 13 }}>None</p>}
+          {ending.map((p) => (
+            <div key={p.id} style={{ padding: '10px 18px', borderBottom: '1px solid var(--line)' }}>
+              <strong style={{ display: 'block', fontSize: 13 }}>{p.project_name}</strong>
+              <small style={{ color: 'var(--muted)' }}>Install end date</small>
+            </div>
+          ))}
+        </section>
+      </div>
+    </div>
+  );
+}
+
+// ─── Scheduling: Installer Calendar ─────────────────────────────────────────
+
+const STATUS_DOT = { 'on-site': '#2a9d8f', staging: '#e09c4a', pending: '#aaa', 'wrap-up': '#6c8ebf' };
+
+function InstallerCalendar({ areaId }) {
+  const [installers, setInstallers] = useState(null);
+  const [anchor, setAnchor]         = useState(() => {
+    const d = new Date(); d.setDate(d.getDate() - d.getDay()); return d;
+  });
+
+  useEffect(() => {
+    fetch('/api/installers', { credentials: 'include' })
+      .then((r) => r.json())
+      .then((rows) => setInstallers(rows))
+      .catch(() => setInstallers([]));
+  }, []);
+
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(anchor); d.setDate(anchor.getDate() + i); return d;
+  });
+
+  const todayStr = isoDate(new Date());
+
+  const filtered = installers
+    ? (areaId ? installers.filter((ins) => {
+        const tName = typeof areaId === 'number'
+          ? Object.values({ 1: 'Charlotte Metro', 2: 'Lake Norman', 3: 'South Carolina', 4: 'Triad' })[areaId - 1]
+          : null;
+        return !tName || ins.territory_name === tName;
+      }) : installers)
+    : [];
+
+  function isActive(ins, dayStr) {
+    if (!ins.install_start_date || !ins.install_end_date) return false;
+    return ins.install_start_date <= dayStr && ins.install_end_date >= dayStr;
+  }
+
+  function prevWeek() { const d = new Date(anchor); d.setDate(d.getDate() - 7); setAnchor(d); }
+  function nextWeek() { const d = new Date(anchor); d.setDate(d.getDate() + 7); setAnchor(d); }
+  function goToday()  { const d = new Date(); d.setDate(d.getDate() - d.getDay()); setAnchor(d); }
+
+  if (installers === null) return <div style={{ padding: 24, color: 'var(--muted)' }}>Loading installers…</div>;
+
+  return (
+    <div className="panel" style={{ overflow: 'auto' }}>
+      <div className="panel-head">
+        <h2>Installer Calendar</h2>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="button" onClick={prevWeek}>← Prev week</button>
+          <button type="button" onClick={goToday}>This week</button>
+          <button type="button" onClick={nextWeek}>Next week →</button>
+        </div>
+      </div>
+
+      <table className="installer-cal-table">
+        <thead>
+          <tr>
+            <th style={{ width: 160 }}>Installer</th>
+            {days.map((d) => {
+              const str = isoDate(d);
+              const isToday = str === todayStr;
+              return (
+                <th key={str} style={{ textAlign: 'center', background: isToday ? 'color-mix(in srgb, var(--brand) 10%, transparent)' : undefined }}>
+                  <div style={{ fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase' }}>{d.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                  <div style={{ fontSize: 13, fontWeight: isToday ? 700 : 500, color: isToday ? 'var(--brand)' : 'var(--ink)' }}>{d.getDate()}</div>
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.length === 0 && (
+            <tr><td colSpan={8} style={{ padding: '20px', color: 'var(--muted)', textAlign: 'center', fontSize: 13 }}>No installers found for this area.</td></tr>
+          )}
+          {filtered.map((ins) => (
+            <tr key={ins.id}>
+              <td style={{ padding: '8px 14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: STATUS_DOT[ins.status] || '#aaa', flexShrink: 0, display: 'inline-block' }} />
+                  <div>
+                    <strong style={{ fontSize: 12, display: 'block' }}>{ins.name}</strong>
+                    <small style={{ color: 'var(--muted)', fontSize: 10 }}>{ins.territory_name || '—'}</small>
+                  </div>
+                </div>
+              </td>
+              {days.map((d) => {
+                const str    = isoDate(d);
+                const active = isActive(ins, str);
+                const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+                return (
+                  <td key={str} style={{
+                    textAlign: 'center', padding: '6px 4px', fontSize: 11,
+                    background: isWeekend ? 'color-mix(in srgb, var(--line) 30%, transparent)' : undefined,
+                  }}>
+                    {active && (
+                      <div style={{
+                        background: 'var(--brand)', color: '#fff',
+                        borderRadius: 4, padding: '3px 6px', fontSize: 10,
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                        maxWidth: 90, margin: '0 auto',
+                      }} title={ins.current_job}>
+                        {ins.current_job ? ins.current_job.split(' ').slice(0, 2).join(' ') : 'On site'}
+                      </div>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div style={{ padding: '10px 16px', borderTop: '1px solid var(--line)', display: 'flex', gap: 16, fontSize: 11, color: 'var(--muted)' }}>
+        {Object.entries({ 'on-site': 'On site', staging: 'Staging', pending: 'Pending', 'wrap-up': 'Wrap-up' }).map(([k, v]) => (
+          <span key={k} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: STATUS_DOT[k], display: 'inline-block' }} />{v}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Scheduling: outer shell with view switcher ──────────────────────────────
+
+function CalendarView({ projects, areaId }) {
+  const [schedView, setSchedView] = useState('calendar');
+  const [subprojects, setSubprojects] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/subprojects', { credentials: 'include' })
+      .then((r) => r.json())
+      .then(setSubprojects)
+      .catch(() => {});
+  }, []);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 8 }}>
+        {[['calendar', 'Month Calendar'], ['monthly', 'Monthly Gantt'], ['daily', 'Daily'], ['installers', 'Installer Calendar']].map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setSchedView(id)}
+            style={{
+              padding: '6px 18px', fontSize: 13, borderRadius: 6,
+              background: schedView === id ? 'var(--brand)' : 'transparent',
+              color: schedView === id ? '#fff' : 'var(--muted)',
+              border: schedView === id ? 'none' : '1px solid var(--line)',
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {schedView === 'monthly'    && <MonthlyGantt      projects={projects} subprojects={subprojects} />}
+      {schedView === 'daily'      && <DailyView         projects={projects} />}
+      {schedView === 'calendar'   && <LegacyCalendar    projects={projects} />}
+      {schedView === 'installers' && <InstallerCalendar areaId={areaId} />}
+    </div>
+  );
+}
+
+function LegacyCalendar({ projects }) {
+  const [anchor, setAnchor] = useState(new Date());
+  const monthStart = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+  const gridStart  = new Date(monthStart);
+  gridStart.setDate(1 - monthStart.getDay());
+  const days = Array.from({ length: 42 }, (_, i) => {
+    const d = new Date(gridStart);
+    d.setDate(gridStart.getDate() + i);
+    return d;
+  });
+  const events = projects.flatMap((p) => [
+    p.install_start_date && { date: p.install_start_date, type: 'Install Start', project: p },
+    p.install_end_date   && { date: p.install_end_date,   type: 'Install End',   project: p },
+    p.completion_date    && { date: p.completion_date,    type: 'Complete',      project: p },
   ].filter(Boolean));
 
   return (
@@ -773,21 +1115,21 @@ function CalendarView({ projects }) {
           <h2>{anchor.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h2>
           <div className="calendar-actions">
             <button type="button" onClick={() => setAnchor(new Date(anchor.getFullYear(), anchor.getMonth() - 1, 1))}>Prev</button>
-            <button type="button" onClick={() => setAnchor(new Date('2026-05-01T12:00:00'))}>Today</button>
+            <button type="button" onClick={() => setAnchor(new Date())}>Today</button>
             <button type="button" onClick={() => setAnchor(new Date(anchor.getFullYear(), anchor.getMonth() + 1, 1))}>Next</button>
           </div>
         </div>
-        <div className="weekdays">{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => <span key={day}>{day}</span>)}</div>
+        <div className="weekdays">{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d) => <span key={d}>{d}</span>)}</div>
         <div className="calendar-grid">
           {days.map((day) => {
-            const key = isoDate(day);
-            const dayEvents = events.filter((event) => event.date === key);
+            const k = isoDate(day);
+            const dayEvents = events.filter((e) => e.date === k);
             return (
-              <div className={day.getMonth() === anchor.getMonth() ? 'day' : 'day muted-day'} key={key}>
+              <div className={day.getMonth() === anchor.getMonth() ? 'day' : 'day muted-day'} key={k}>
                 <strong>{day.getDate()}</strong>
-                {dayEvents.slice(0, 3).map((event) => (
-                  <span className={`calendar-event event-${event.type.replaceAll(' ', '-').toLowerCase()}`} key={`${event.type}-${event.project.id}`}>
-                    {event.type}: {event.project.job_number || event.project.project_name}
+                {dayEvents.slice(0, 3).map((ev) => (
+                  <span className={`calendar-event event-${ev.type.replaceAll(' ','-').toLowerCase()}`} key={`${ev.type}-${ev.project.id}`}>
+                    {ev.type}: {ev.project.job_number || ev.project.project_name}
                   </span>
                 ))}
               </div>
@@ -798,10 +1140,10 @@ function CalendarView({ projects }) {
       <section className="panel agenda-panel">
         <div className="panel-head"><h2>Calendar List</h2><span>{events.length} milestones</span></div>
         <div className="agenda-list">
-          {events.sort((a, b) => a.date.localeCompare(b.date)).map((event) => (
-            <div className="agenda-item" key={`${event.date}-${event.type}-${event.project.id}`}>
-              <span className="badge badge-active">{event.type}</span>
-              <div><strong>{event.project.project_name}</strong><small>{shortDate(event.date)} - {getAreaName(event.project.territory_id, event.project.territory_name)}</small></div>
+          {events.sort((a, b) => a.date.localeCompare(b.date)).map((ev) => (
+            <div className="agenda-item" key={`${ev.date}-${ev.type}-${ev.project.id}`}>
+              <span className="badge badge-active">{ev.type}</span>
+              <div><strong>{ev.project.project_name}</strong><small>{shortDate(ev.date)} · {getAreaName(ev.project.territory_id, ev.project.territory_name)}</small></div>
             </div>
           ))}
         </div>
@@ -1169,6 +1511,125 @@ function InstallerProfile({ installer, onClose }) {
   );
 }
 
+// ─── Material Tracking Board ─────────────────────────────────────────────────
+
+const MATERIAL_STAGES = [
+  { id: 'schedule_calls', label: 'Schedule Calls',  color: '#6c8ebf' },
+  { id: 'measures',       label: 'Measures',         color: '#e09c4a' },
+  { id: 'orders',         label: 'Orders',           color: '#9b59b6' },
+  { id: 'deliveries',     label: 'Deliveries',       color: '#2980b9' },
+  { id: 'in_stock',       label: 'In Stock',         color: '#2a9d8f' },
+];
+
+function MaterialCard({ item, onMove, onDelete }) {
+  const stageIdx  = MATERIAL_STAGES.findIndex((s) => s.id === item.stage);
+  const canBack   = stageIdx > 0;
+  const canForward = stageIdx < MATERIAL_STAGES.length - 1;
+
+  return (
+    <div className="mat-card">
+      <div className="mat-card-head">
+        <strong>{item.project_name || item.linked_project_name || 'Unnamed'}</strong>
+        <button type="button" onClick={() => onDelete(item.id)} className="mat-del-btn">✕</button>
+      </div>
+      {item.city        && <div className="mat-detail">📍 {item.city}</div>}
+      {item.assigned_to && <div className="mat-detail">👤 {item.assigned_to}</div>}
+      {item.vendor      && <div className="mat-detail">🏭 {item.vendor}</div>}
+      {item.eta         && <div className="mat-detail">ETA: {shortDate(item.eta)}</div>}
+      {item.notes       && <div className="mat-notes">{item.notes}</div>}
+      {item.billed      && <span className="mat-billed-badge">Billed</span>}
+      <div className="mat-card-actions">
+        {canBack    && <button type="button" onClick={() => onMove(item, MATERIAL_STAGES[stageIdx - 1].id)}>← Back</button>}
+        {canForward && <button type="button" onClick={() => onMove(item, MATERIAL_STAGES[stageIdx + 1].id)}>Forward →</button>}
+      </div>
+    </div>
+  );
+}
+
+function MaterialBoard() {
+  const [items, setItems]       = useState(null);
+  const [adding, setAdding]     = useState(null); // stage id being added to
+  const [form, setForm]         = useState({ project_name: '', city: '', assigned_to: '', vendor: '', notes: '', eta: '' });
+
+  useEffect(() => {
+    fetch('/api/materials', { credentials: 'include' })
+      .then((r) => r.json())
+      .then(setItems)
+      .catch(() => setItems([]));
+  }, []);
+
+  async function handleMove(item, newStage) {
+    const res = await fetch(`/api/materials/${item.id}`, {
+      method: 'PATCH', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stage: newStage }),
+    });
+    const updated = await res.json();
+    setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+  }
+
+  async function handleAdd(e, stage) {
+    e.preventDefault();
+    const res = await fetch('/api/materials', {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...form, stage }),
+    });
+    const row = await res.json();
+    setItems((prev) => [...prev, row]);
+    setForm({ project_name: '', city: '', assigned_to: '', vendor: '', notes: '', eta: '' });
+    setAdding(null);
+  }
+
+  async function handleDelete(id) {
+    await fetch(`/api/materials/${id}`, { method: 'DELETE', credentials: 'include' });
+    setItems((prev) => prev.filter((i) => i.id !== id));
+  }
+
+  if (items === null) return <div style={{ padding: 24, color: 'var(--muted)' }}>Loading materials…</div>;
+
+  return (
+    <div>
+      <div className="mat-board">
+        {MATERIAL_STAGES.map((stage) => {
+          const stageItems = items.filter((i) => i.stage === stage.id);
+          return (
+            <div key={stage.id} className="mat-column">
+              <div className="mat-col-head" style={{ borderTopColor: stage.color }}>
+                <span>{stage.label}</span>
+                <span className="mat-count">{stageItems.length}</span>
+              </div>
+
+              <div className="mat-cards">
+                {stageItems.map((item) => (
+                  <MaterialCard key={item.id} item={item} onMove={handleMove} onDelete={handleDelete} />
+                ))}
+              </div>
+
+              {adding === stage.id ? (
+                <form className="mat-add-form" onSubmit={(e) => handleAdd(e, stage.id)}>
+                  <input required placeholder="Project / job name" value={form.project_name} onChange={(e) => setForm({ ...form, project_name: e.target.value })} />
+                  <input placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+                  <input placeholder="Assigned to" value={form.assigned_to} onChange={(e) => setForm({ ...form, assigned_to: e.target.value })} />
+                  <input placeholder="Vendor" value={form.vendor} onChange={(e) => setForm({ ...form, vendor: e.target.value })} />
+                  <input type="date" placeholder="ETA" value={form.eta} onChange={(e) => setForm({ ...form, eta: e.target.value })} />
+                  <textarea placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={2} />
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button type="submit">Add</button>
+                    <button type="button" onClick={() => setAdding(null)} style={{ background: 'transparent', color: 'var(--muted)', border: '1px solid var(--line)' }}>Cancel</button>
+                  </div>
+                </form>
+              ) : (
+                <button type="button" className="mat-add-btn" onClick={() => setAdding(stage.id)}>+ Add item</button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function InstallersView({ installers }) {
   const [selected, setSelected] = useState(null);
   const onSite   = installers.filter((i) => i.status === 'on-site').length;
@@ -1391,7 +1852,94 @@ function BidsView({ bids }) {
   );
 }
 
-function ReportsView() {
+function toCSV(cols, rows) {
+  const esc = (v) => { const s = v == null ? '' : String(v); return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  return [cols.map((c) => esc(c.label)), ...rows.map((r) => cols.map((c) => esc(r[c.key])))].map((r) => r.join(',')).join('\n');
+}
+
+function downloadCSV(filename, csv) {
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  Object.assign(document.createElement('a'), { href: url, download: filename }).click();
+  URL.revokeObjectURL(url);
+}
+
+function ReportsView({ projects = [], billings = [], bids = [], customers = [], installers = [] }) {
+  const exportFns = {
+    'Project Status Summary':     () => downloadCSV('project-status.csv', toCSV([
+      { label: 'Job #',          key: 'job_number' },
+      { label: 'Project',        key: 'project_name' },
+      { label: 'Company',        key: 'company_name' },
+      { label: 'Territory',      key: 'territory_name' },
+      { label: 'Status',         key: 'status' },
+      { label: 'Install Start',  key: 'install_start_date' },
+      { label: 'Install End',    key: 'install_end_date' },
+      { label: 'Contract Value', key: 'total_contract' },
+    ], projects)),
+    'Weekly Field Report':         () => downloadCSV('weekly-field-report.csv', toCSV([
+      { label: 'Project',       key: 'project_name' },
+      { label: 'Territory',     key: 'territory_name' },
+      { label: 'Status',        key: 'status' },
+      { label: 'Install Start', key: 'install_start_date' },
+      { label: 'Install End',   key: 'install_end_date' },
+    ], projects.filter((p) => p.status === 'active'))),
+    'Install Schedule Export':     () => downloadCSV('install-schedule.csv', toCSV([
+      { label: 'Job #',         key: 'job_number' },
+      { label: 'Project',       key: 'project_name' },
+      { label: 'Territory',     key: 'territory_name' },
+      { label: 'Install Start', key: 'install_start_date' },
+      { label: 'Install End',   key: 'install_end_date' },
+    ], projects)),
+    'Billing Cycle Summary':       () => downloadCSV('billing-cycle.csv', toCSV([
+      { label: 'Job #',             key: 'job_number' },
+      { label: 'Project',           key: 'project_name' },
+      { label: 'Company',           key: 'company_name' },
+      { label: 'Territory',         key: 'territory_name' },
+      { label: 'Billed This Month', key: 'bill_this_month' },
+      { label: 'Total Billed',      key: 'total_billed' },
+      { label: 'Remaining',         key: 'remaining_to_bill' },
+      { label: '% Complete',        key: 'percent_complete' },
+      { label: 'Invoice Sent',      key: 'invoice_sent' },
+      { label: 'QBO Invoice #',     key: 'qbo_invoice_number' },
+    ], billings)),
+    'Bid & Estimate Log':          () => downloadCSV('bid-log.csv', toCSV([
+      { label: 'Project',      key: 'project_name' },
+      { label: 'Company',      key: 'company_name' },
+      { label: 'Territory',    key: 'territory_name' },
+      { label: 'Bid Date',     key: 'bid_date' },
+      { label: 'Bid Amount',   key: 'bid_amount' },
+      { label: 'Est. GP',      key: 'estimated_gp' },
+      { label: 'Est. Hours',   key: 'estimated_hours' },
+      { label: 'Status',       key: 'bid_status' },
+      { label: 'Won',          key: 'won' },
+    ], bids)),
+    'Customer Contact Sheet':      () => downloadCSV('customers.csv', toCSV([
+      { label: 'Company',          key: 'company_name' },
+      { label: 'Territory',        key: 'territory_name' },
+      { label: 'Type',             key: 'company_type' },
+      { label: 'Contact',          key: 'contact_name' },
+      { label: 'Title',            key: 'contact_title' },
+      { label: 'Phone',            key: 'phone' },
+      { label: 'Active Projects',  key: 'active_projects' },
+      { label: 'Total Value',      key: 'total_value' },
+      { label: 'Last Interaction', key: 'last_interaction' },
+    ], customers)),
+    'Installer Efficiency Report': () => downloadCSV('installer-efficiency.csv', toCSV([
+      { label: 'Name',       key: 'name' },
+      { label: 'Territory',  key: 'territory_name' },
+      { label: 'YTD Hours',  key: 'ytd_hours' },
+      { label: 'Efficiency', key: 'efficiency_rating' },
+      { label: 'OT Hours',   key: 'overtime_hours' },
+      { label: 'Status',     key: 'status' },
+    ], installers)),
+    'Monthly KPI Summary':         () => downloadCSV('kpi-summary.csv', toCSV([
+      { label: 'Project',        key: 'project_name' },
+      { label: 'Territory',      key: 'territory_name' },
+      { label: 'Status',         key: 'status' },
+      { label: 'Contract Value', key: 'total_contract' },
+    ], projects)),
+  };
+
   const templates = [
     { title: 'Project Status Summary',     description: 'All active jobs with install dates, status, and billing progress.', group: 'Projects' },
     { title: 'Weekly Field Report',         description: 'Installer hours, on-site activity, and schedule variances.',        group: 'Projects' },
@@ -1406,10 +1954,10 @@ function ReportsView() {
   return (
     <>
       <section className="stats-grid" style={{ gridTemplateColumns: 'repeat(4,minmax(0,1fr))' }}>
-        <StatCard label="Report Templates"   value={templates.length} note="Ready to export" />
-        <StatCard label="Export Formats"     value="CSV / PDF"        note="Download anytime" />
-        <StatCard label="Last Export"        value="May 14"           note="Weekly Field Report" />
-        <StatCard label="Scheduled Reports"  value={2}               note="Auto-send Fridays" />
+        <StatCard label="Report Templates"  value={templates.length} note="Ready to export" />
+        <StatCard label="Export Format"     value="CSV"              note="Download anytime" />
+        <StatCard label="Last Export"       value="May 14"           note="Weekly Field Report" />
+        <StatCard label="Scheduled Reports" value={2}                note="Auto-send Fridays" />
       </section>
       {groups.map((group) => (
         <section key={group} className="panel" style={{ marginBottom: 18 }}>
@@ -1421,7 +1969,7 @@ function ReportsView() {
                   <strong style={{ display: 'block', marginBottom: 3 }}>{t.title}</strong>
                   <small style={{ color: 'var(--muted)' }}>{t.description}</small>
                 </div>
-                <button type="button" style={{ fontSize: 12, padding: '7px 14px', whiteSpace: 'nowrap', background: 'var(--brand)' }}>Export CSV</button>
+                <button type="button" onClick={exportFns[t.title]} style={{ fontSize: 12, padding: '7px 14px', whiteSpace: 'nowrap', background: 'var(--brand)' }}>Export CSV</button>
               </div>
             ))}
           </div>
@@ -1435,8 +1983,9 @@ function ReportsView() {
 
 function ProjectManagerDashboard({ user }) {
   const [activeView, setActiveView] = useState('dashboard');
-  const lockedArea = user.territoryId ? Number(user.territoryId) : 0;
-  const [areaId, setAreaId] = useState(lockedArea || 0);
+  const canSwitchTerritory = !['installer', 'estimator'].includes(user.role);
+  const lockedArea = (!canSwitchTerritory && user.territoryId) ? Number(user.territoryId) : 0;
+  const [areaId, setAreaId] = useState(user.territoryId ? Number(user.territoryId) : 0);
   const [apiDashboard, setApiDashboard] = useState(null);
   const [loadingApi, setLoadingApi] = useState(false);
   const dashboard = normalizeDashboard(apiDashboard, areaId);
@@ -1456,7 +2005,7 @@ function ProjectManagerDashboard({ user }) {
     ['finances',   'Finances'],
     ['customers',  'Customers'],
     ['bids',       'Bids & Estimates'],
-    ['inventory',  'Inventory'],
+    ['inventory',  'Materials'],
     ['reports',    'Reports'],
   ];
   const navUtil = [
@@ -1477,10 +2026,11 @@ function ProjectManagerDashboard({ user }) {
     return role.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   }
 
-  async function refreshFromApi() {
+  async function refreshFromApi(territory) {
     setLoadingApi(true);
     try {
-      const response = await fetch('/api/dashboard', { credentials: 'include' });
+      const url = territory ? `/api/dashboard?territory=${territory}` : '/api/dashboard';
+      const response = await fetch(url, { credentials: 'include' });
       if (!response.ok) return;
       const body = await response.json();
       setApiDashboard(body.dashboards?.projectManager || null);
@@ -1489,7 +2039,7 @@ function ProjectManagerDashboard({ user }) {
     }
   }
 
-  useEffect(() => { if (!user.demo) refreshFromApi(); }, []);
+  useEffect(() => { if (!user.demo) refreshFromApi(areaId || null); }, [areaId]);
 
   return (
     <div className="app-shell">
@@ -1534,14 +2084,14 @@ function ProjectManagerDashboard({ user }) {
 
         {activeView === 'dashboard'  && <DashboardHome   key={areaId} dashboard={dashboard} />}
         {activeView === 'projects'   && <ProjectsView    key={areaId} projects={dashboard.projects || []} />}
-        {activeView === 'scheduling' && <CalendarView    key={areaId} projects={dashboard.projects || []} />}
+        {activeView === 'scheduling' && <CalendarView    key={areaId} projects={dashboard.projects || []} areaId={areaId} />}
         {activeView === 'installers' && <InstallersView  key={areaId} installers={filteredInstallers} />}
         {activeView === 'kpis'       && <KPIView         key={areaId} dashboard={dashboard} />}
         {activeView === 'finances'   && <FinancesView    key={areaId} billings={filteredBillings} />}
         {activeView === 'customers'  && <CustomersView   key={areaId} customers={filteredCustomers} />}
         {activeView === 'bids'       && <BidsView        key={areaId} bids={filteredBids} />}
-        {activeView === 'inventory'  && <PlaceholderView key={areaId} title="Inventory" icon="📦" description="Material and product tracking coming soon. Track blind types, SKUs, and stock levels by job." />}
-        {activeView === 'reports'    && <ReportsView     key={areaId} />}
+        {activeView === 'inventory'  && <MaterialBoard key={areaId} />}
+        {activeView === 'reports'    && <ReportsView key={areaId} projects={dashboard.projects || []} billings={filteredBillings} bids={filteredBids} customers={filteredCustomers} installers={filteredInstallers} />}
         {activeView === 'messages'   && <PlaceholderView key={areaId} title="Messages"  icon="💬" description="Team messaging and client communication threads coming soon." />}
         {activeView === 'documents'  && <PlaceholderView key={areaId} title="Documents" icon="📄" description="Contract storage, submittals, and closeout packages coming soon." />}
         {activeView === 'alerts'     && <PlaceholderView key={areaId} title="Alerts"    icon="🔔" description="Smart notifications for overdue invoices, schedule conflicts, and OT flags." />}
