@@ -59,8 +59,8 @@ button:disabled {
   padding: 56px;
   color: #fff;
   background:
-    linear-gradient(120deg, rgba(23, 53, 74, .95), rgba(33, 79, 111, .78)),
-    url("https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=1600&q=80") center/cover;
+    linear-gradient(120deg, rgba(13, 30, 46, .82), rgba(20, 50, 75, .65)),
+    url("https://images.unsplash.com/photo-1573879403615-0536cc0f5de3?auto=format&fit=crop&w=1600&q=80") center/cover;
 }
 
 .login-hero p,
